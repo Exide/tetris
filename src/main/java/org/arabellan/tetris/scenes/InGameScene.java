@@ -12,6 +12,10 @@ public class InGameScene implements Scene {
     private EventBus eventBus;
 
     @Override
+    public void initialize() {
+    }
+
+    @Override
     public void update(double delta) {
         log.info("Updating!");
         eventBus.post(new QuitEvent());

@@ -24,19 +24,23 @@ public class SceneManager {
 
     public void initialize() {
         log.debug("Initializing SceneManager");
-        scene = factory.get(MainMenuScene.class);
+        setScene(MainMenuScene.class);
     }
 
     public void update(double delta) {
-        log.debug("Updating the current scene");
         scene.update(delta);
+    }
+
+    private void setScene(Class sceneClass) {
+        scene = factory.get(sceneClass);
+        scene.initialize();
     }
 
     private class ChangeSceneListener {
         @Subscribe
         public void listen(ChangeSceneEvent event) {
             log.debug("ChangeSceneEvent received");
-            scene = factory.get(event.getSceneClass());
+            setScene(event.getSceneClass());
         }
     }
 }

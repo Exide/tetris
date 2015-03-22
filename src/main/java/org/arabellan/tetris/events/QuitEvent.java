@@ -1,4 +1,4 @@
 package org.arabellan.tetris.events;
 
-public class QuitEvent {
+public class QuitEvent implements Event {
 }
