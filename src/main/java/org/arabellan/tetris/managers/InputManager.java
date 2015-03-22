@@ -1,4 +1,4 @@
-package org.arabellan.tetris;
+package org.arabellan.tetris.managers;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
@@ -14,7 +14,7 @@ import java.util.Map;
 @Slf4j
 public class InputManager {
 
-    public enum Key { SPACE }
+    public enum Key {ESCAPE, LEFT, RIGHT, UP, DOWN, SPACE }
 
     @Inject
     private EventBus eventBus;
@@ -29,5 +29,10 @@ public class InputManager {
         if (bindings.containsKey(key)) {
             eventBus.post(bindings.get(key));
         }
+    }
+
+    public void clearBindings() {
+        bindings.keySet().forEach((key) -> log.debug("Unbinding " + key));
+        bindings.clear();
     }
 }

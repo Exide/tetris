@@ -1,10 +1,13 @@
-package org.arabellan.tetris.scenes;
+package org.arabellan.tetris.managers;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.arabellan.tetris.events.ChangeSceneEvent;
+import org.arabellan.tetris.scenes.MainMenuScene;
+import org.arabellan.tetris.scenes.Scene;
+import org.arabellan.tetris.scenes.SceneFactory;
 
 /**
  * This class is responsible for the current scene.
@@ -18,12 +21,12 @@ public class SceneManager {
 
     @Inject
     public SceneManager(EventBus eventBus) {
-        log.debug("Constructing SceneManager");
+        log.debug("Constructing");
         eventBus.register(new ChangeSceneListener());
     }
 
     public void initialize() {
-        log.debug("Initializing SceneManager");
+        log.debug("Initializing");
         setScene(MainMenuScene.class);
     }
 
@@ -32,6 +35,7 @@ public class SceneManager {
     }
 
     private void setScene(Class sceneClass) {
+        if (scene != null) scene.cleanup();
         scene = factory.get(sceneClass);
         scene.initialize();
     }

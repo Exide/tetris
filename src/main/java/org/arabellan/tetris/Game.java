@@ -5,7 +5,7 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.arabellan.tetris.events.QuitEvent;
-import org.arabellan.tetris.scenes.SceneManager;
+import org.arabellan.tetris.managers.SceneManager;
 
 /**
  * This class is responsible for initializing and updating management objects.
@@ -20,12 +20,12 @@ public class Game {
 
     @Inject
     public Game(EventBus eventBus) {
-        log.debug("Constructing Game");
+        log.debug("Constructing");
         eventBus.register(new QuitGameListener());
     }
 
     public void start() {
-        log.debug("Starting Game");
+        log.debug("Starting");
         sceneManager.initialize();
         while (isRunning) {
             // TODO: make a real update loop
