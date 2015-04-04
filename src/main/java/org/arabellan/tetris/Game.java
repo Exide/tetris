@@ -32,6 +32,7 @@ public class Game {
             double delta = 0;
             sceneManager.update(delta);
         }
+        sceneManager.shutdown();
     }
 
     private class QuitGameListener {

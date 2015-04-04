@@ -40,6 +40,10 @@ public class SceneManager {
         scene.initialize();
     }
 
+    public void shutdown() {
+        if (scene != null) scene.cleanup();
+    }
+
     private class ChangeSceneListener {
         @Subscribe
         public void listen(ChangeSceneEvent event) {
