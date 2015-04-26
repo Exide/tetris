@@ -100,8 +100,20 @@ public class InGameScene implements Scene {
         eventBus.unregister(inputListener);
     }
 
-    private void moveTetriminoDown() {
+    private void moveTetriminoDown() throws InvalidMoveException {
         log.debug("Moving tetrimino down");
+        Tetrimino potentialTetrimino = Tetrimino.builder()
+                .type(activeTetrimino.getType())
+                .color(activeTetrimino.getColor())
+                .shape(activeTetrimino.getShape())
+                .position(activeTetrimino.getPosition().translate(0, 1))
+                .build();
+
+        if (well.isPositionAllowed(potentialTetrimino)) {
+            activeTetrimino.setPosition(potentialTetrimino.getPosition());
+        } else {
+            throw new InvalidMoveException();
+        }
     }
 
     private void moveTetriminoLeft() {

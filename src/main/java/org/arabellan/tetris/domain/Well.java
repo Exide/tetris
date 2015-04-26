@@ -32,4 +32,8 @@ public class Well {
     public void add(Tetrimino tetrimino) {
         log.debug("Adding " + tetrimino.getType());
     }
+
+    public boolean isPositionAllowed(Tetrimino tetrimino) {
+        return true;
+    }
 }
