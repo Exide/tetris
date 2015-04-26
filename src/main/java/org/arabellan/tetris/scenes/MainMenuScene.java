@@ -19,7 +19,7 @@ public class MainMenuScene implements Scene {
     }
 
     @Override
-    public void update(double delta) {
+    public void update() {
         log.info("Updating!");
         input.trigger(Key.SPACE);
     }

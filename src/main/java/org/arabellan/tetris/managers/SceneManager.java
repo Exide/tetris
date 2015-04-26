@@ -30,8 +30,8 @@ public class SceneManager {
         setScene(MainMenuScene.class);
     }
 
-    public void update(double delta) {
-        scene.update(delta);
+    public void update() {
+        scene.update();
     }
 
     private void setScene(Class sceneClass) {

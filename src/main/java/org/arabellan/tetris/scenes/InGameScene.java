@@ -4,8 +4,10 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+import org.arabellan.tetris.domain.InvalidMoveException;
 import org.arabellan.tetris.domain.Tetrimino;
 import org.arabellan.tetris.domain.TetriminoFactory;
+import org.arabellan.tetris.domain.Well;
 import org.arabellan.tetris.events.DropEvent;
 import org.arabellan.tetris.events.MoveEvent;
 import org.arabellan.tetris.events.QuitEvent;
@@ -13,12 +15,19 @@ import org.arabellan.tetris.events.RotateEvent;
 import org.arabellan.tetris.managers.InputManager;
 import org.arabellan.tetris.managers.InputManager.Key;
 
+import java.time.Duration;
+import java.time.Instant;
+
 /**
  * This class is responsible for the logic during the game.
  */
 @Slf4j
 public class InGameScene implements Scene {
 
+    private static int TIME_STEP_IN_MS = 1750;
+    private Instant lastUpdate = Instant.now();
+
+    private Well well;
     private Tetrimino activeTetrimino;
     private Tetrimino nextTetrimino;
 
@@ -35,6 +44,11 @@ public class InGameScene implements Scene {
     @Override
     public void initialize() {
         log.debug("Initializing");
+        initializeInput();
+        initializeGameObjects();
+    }
+
+    private void initializeInput() {
         inputListener = new InputListener();
         eventBus.register(inputListener);
 
@@ -43,18 +57,40 @@ public class InGameScene implements Scene {
         input.bind(Key.RIGHT, new MoveEvent(1));
         input.bind(Key.UP, new RotateEvent());
         input.bind(Key.DOWN, new DropEvent());
+    }
 
+    private void initializeGameObjects() {
+        well = new Well();
         activeTetrimino = factory.getRandomTetrimino();
         nextTetrimino = factory.getRandomTetrimino();
     }
 
     @Override
-    public void update(double delta) {
-        input.trigger(Key.LEFT);
-        input.trigger(Key.RIGHT);
-        input.trigger(Key.UP);
-        input.trigger(Key.DOWN);
-        input.trigger(Key.ESCAPE);
+    public void update() {
+        long delta = Duration.between(lastUpdate, Instant.now()).toMillis();
+        if (delta >= TIME_STEP_IN_MS) {
+            log.debug("Tick!");
+            updateActiveTetrimino();
+            lastUpdate = Instant.now();
+        }
+    }
+
+    private void updateActiveTetrimino() {
+        try {
+            moveTetriminoDown();
+        } catch (InvalidMoveException e) {
+            finalizeActiveTetrimino();
+        }
+    }
+
+    private void finalizeActiveTetrimino() {
+        well.add(activeTetrimino);
+        activateNextTetrimino();
+    }
+
+    private void activateNextTetrimino() {
+        activeTetrimino = nextTetrimino;
+        nextTetrimino = factory.getRandomTetrimino();
     }
 
     @Override
@@ -64,9 +100,8 @@ public class InGameScene implements Scene {
         eventBus.unregister(inputListener);
     }
 
-    private void activateNextTetrimino() {
-        activeTetrimino = nextTetrimino;
-        nextTetrimino = factory.getRandomTetrimino();
+    private void moveTetriminoDown() {
+        log.debug("Moving tetrimino down");
     }
 
     private void moveTetriminoLeft() {
@@ -83,23 +118,6 @@ public class InGameScene implements Scene {
 
     private void dropTetrimino() {
         log.debug("Dropping tetrimino");
-    }
-
-    private void addTetriminoToWell() {
-        if (tetriminoNotAtBottom()) {
-            dropTetrimino();
-        }
-
-        mergeTetriminoAndWell();
-    }
-
-    private boolean tetriminoNotAtBottom() {
-        log.debug("Tetrimino not at the bottom of the well");
-        return false;
-    }
-
-    private void mergeTetriminoAndWell() {
-        log.debug("Merging Tetrimino with the well");
     }
 
     private class InputListener {

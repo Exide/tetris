@@ -28,9 +28,7 @@ public class Game {
         log.debug("Starting");
         sceneManager.initialize();
         while (isRunning) {
-            // TODO: make a real update loop
-            double delta = 0;
-            sceneManager.update(delta);
+            sceneManager.update();
         }
         sceneManager.shutdown();
     }
