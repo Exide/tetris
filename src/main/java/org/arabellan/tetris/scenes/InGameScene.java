@@ -71,7 +71,83 @@ public class InGameScene implements Scene {
         if (delta >= TIME_STEP_IN_MS) {
             log.debug("Tick!");
             updateActiveTetrimino();
+            render();
             lastUpdate = Instant.now();
+        }
+    }
+
+    private void render() {
+        log.debug("\n" + getVisibleComponents());
+    }
+
+    private String getVisibleComponents() {
+        int[][] matrix = matrixCopy(well.getMatrix());
+        int x = ((int) activeTetrimino.getPosition().getX());
+        int y = ((int) activeTetrimino.getPosition().getY());
+        matrix[y][x] = 3;
+        return matrixToString(matrix);
+    }
+
+    private int[][] matrixCopy(int[][] original) {
+        int[][] copy = matrixCreateEmpty(original);
+        matrixCopyData(original, copy);
+        return copy;
+    }
+
+    private int[][] matrixCreateEmpty(int[][] original) {
+        int rows = matrixGetRows(original);
+        int columns = matrixGetColumns(original);
+        return new int[rows][columns];
+    }
+
+    private void matrixCopyData(int[][] original, int[][] copy) {
+        for (int row = 0; row < original.length; ++row) {
+            for (int column = 0; column < original[row].length; ++column) {
+                copy[row][column] = original[row][column];
+            }
+        }
+    }
+
+    private int matrixGetColumns(int[][] original) {
+        return matrixGetColumns(original[0]);
+    }
+
+    private int matrixGetColumns(int[] row) {
+        return row.length;
+    }
+
+    private int matrixGetRows(int[][] original) {
+        return original.length;
+    }
+
+    public String matrixToString(int[][] matrix) {
+        StringBuilder sb = new StringBuilder();
+
+        for (int[] row : matrix) {
+            sb.append(arrayToString(row)).append("\n");
+        }
+
+        return sb.toString();
+    }
+
+    private String arrayToString(int[] row) {
+        StringBuilder sb = new StringBuilder();
+
+        for (int cell : row) {
+            sb.append(getSymbol(cell)).append(" ");
+        }
+
+        return sb.toString();
+    }
+
+    private char getSymbol(int symbol) {
+        switch (symbol) {
+            case 0:
+                return '.';
+            case 1:
+                return 'O';
+            default:
+                return '?';
         }
     }
 

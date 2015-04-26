@@ -1,10 +1,12 @@
 package org.arabellan.tetris.domain;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class Well {
 
+    @Getter
     int[][] matrix = new int[][]{
             {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
             {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
