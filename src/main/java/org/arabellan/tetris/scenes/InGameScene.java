@@ -145,7 +145,17 @@ public class InGameScene implements Scene {
             case 0:
                 return '.';
             case 1:
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            case 7:
                 return 'O';
+            case 8:
+                return ' ';
+            case 9:
+                return 'X';
             default:
                 return '?';
         }
