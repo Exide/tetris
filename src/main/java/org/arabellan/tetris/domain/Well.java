@@ -31,11 +31,15 @@ public class Well {
             {9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9}
     };
 
-    public void add(Tetrimino tetrimino) {
+    public void add(Tetrimino tetrimino) throws InvalidMoveException {
         log.debug("Adding " + tetrimino.getType());
         int x = (int) tetrimino.getPosition().getX();
         int y = (int) tetrimino.getPosition().getY();
-        matrix[y][x] = 3;
+        if (isPositionAllowed(tetrimino)) {
+            matrix[y][x] = 3;
+        } else {
+            throw new InvalidMoveException();
+        }
     }
 
     public boolean isPositionAllowed(Tetrimino tetrimino) {

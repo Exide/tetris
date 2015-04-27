@@ -8,6 +8,7 @@ import org.arabellan.tetris.domain.InvalidMoveException;
 import org.arabellan.tetris.domain.Tetrimino;
 import org.arabellan.tetris.domain.TetriminoFactory;
 import org.arabellan.tetris.domain.Well;
+import org.arabellan.tetris.events.ChangeSceneEvent;
 import org.arabellan.tetris.events.DropEvent;
 import org.arabellan.tetris.events.MoveEvent;
 import org.arabellan.tetris.events.QuitEvent;
@@ -63,6 +64,7 @@ public class InGameScene implements Scene {
         well = new Well();
         activeTetrimino = factory.getRandomTetrimino();
         nextTetrimino = factory.getRandomTetrimino();
+        render();
     }
 
     @Override
@@ -170,8 +172,17 @@ public class InGameScene implements Scene {
     }
 
     private void finalizeActiveTetrimino() {
-        well.add(activeTetrimino);
-        activateNextTetrimino();
+        try {
+            well.add(activeTetrimino);
+            activateNextTetrimino();
+        } catch (InvalidMoveException e) {
+            gameOver();
+        }
+    }
+
+    private void gameOver() {
+        log.debug("Game over!");
+        eventBus.post(new ChangeSceneEvent(MainMenuScene.class));
     }
 
     private void activateNextTetrimino() {
