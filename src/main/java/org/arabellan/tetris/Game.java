@@ -4,12 +4,11 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+import org.arabellan.common.Function;
 import org.arabellan.tetris.events.QuitEvent;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * This class is responsible for initializing and updating management objects.
@@ -18,8 +17,8 @@ import java.util.function.Predicate;
 public class Game {
 
     private static final long TIME_STEP_IN_MS = 1750;
-    private static final int width = 12; // super small
-    private static final int height = 6; // debug display
+    private static final int WIDTH = 12; // super small
+    private static final int HEIGHT = 6; // debug display
 
     private boolean isRunning = true;
 
@@ -45,16 +44,22 @@ public class Game {
 
     private void initialize() {
         director.initialize();
-        renderer.initialize(width, height);
+        renderer.initialize(WIDTH, HEIGHT);
     }
 
     private void loopUntilStopped() {
         renderer.draw(director.getScene());
+        doAtTimeStep(delta -> {
+            director.update();
+            renderer.draw(director.getScene());
+        });
+    }
+
+    private void doAtTimeStep(Function<Long> function) {
         while (isRunning) {
             long delta = Duration.between(lastUpdate, Instant.now()).toMillis();
             if (delta >= TIME_STEP_IN_MS) {
-                director.update();
-                renderer.draw(director.getScene());
+                function.execute(delta);
                 lastUpdate = Instant.now();
             }
         }
