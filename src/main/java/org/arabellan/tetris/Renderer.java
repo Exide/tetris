@@ -27,7 +27,7 @@ public class Renderer {
         return matrixToString(display);
     }
 
-    private int[][] addToDisplay(Renderable object) {
+    private void addToDisplay(Renderable object) {
         int[][] overlay = matrixCopy(display);
 
         switch (object.getTypeOfRenderable()) {
@@ -43,7 +43,7 @@ public class Renderer {
                 throw new RuntimeException("Unknown renderable object type!");
         }
 
-        return overlay;
+        display = overlay;
     }
 
     private int[][] matrixCopy(int[][] original) {
