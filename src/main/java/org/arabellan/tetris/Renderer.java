@@ -1,6 +1,7 @@
 package org.arabellan.tetris;
 
 import lombok.extern.slf4j.Slf4j;
+import org.arabellan.common.Function2;
 
 import java.util.List;
 
@@ -62,11 +63,17 @@ public class Renderer {
     }
 
     private void matrixCopyData(int[][] original, int[][] copy) {
-        for (int row = 0; row < original.length; ++row) {
-            for (int column = 0; column < original[row].length; ++column) {
-                if (original[row][column] != 0) {
-                    copy[row][column] = original[row][column];
-                }
+        forEachCell(original, (row, column) -> {
+            if (original[row][column] != 0) {
+                copy[row][column] = original[row][column];
+            }
+        });
+    }
+
+    private void forEachCell(int[][] matrix, Function2<Integer, Integer> function) {
+        for (int row = 0; row < matrix.length; ++row) {
+            for (int column = 0; column < matrix[row].length; ++column) {
+                function.execute(row, column);
             }
         }
     }
