@@ -23,15 +23,11 @@ public class Renderer {
     }
 
     private String renderAsString(List<Renderable> objects) {
-        objects.forEach(this::blit);
+        objects.forEach(this::addToDisplay);
         return matrixToString(display);
     }
 
-    private void blit(Renderable object) {
-        display = overlay(display, object);
-    }
-
-    private int[][] overlay(int[][] display, Renderable object) {
+    private int[][] addToDisplay(Renderable object) {
         int[][] overlay = matrixCopy(display);
 
         switch (object.getTypeOfRenderable()) {
