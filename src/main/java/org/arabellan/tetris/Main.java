@@ -9,7 +9,7 @@ public class Main {
     public static void main(String[] args) {
         log.debug("Main entered");
         Injector injector = Guice.createInjector(new GuiceModule());
-        injector.getInstance(Game.class).start();
+        injector.getInstance(Game.class).run();
         log.debug("Main exiting");
     }
 }

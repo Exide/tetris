@@ -5,7 +5,11 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.arabellan.tetris.events.QuitEvent;
-import org.arabellan.tetris.managers.SceneManager;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * This class is responsible for initializing and updating management objects.
@@ -13,10 +17,18 @@ import org.arabellan.tetris.managers.SceneManager;
 @Slf4j
 public class Game {
 
+    private static final long TIME_STEP_IN_MS = 1750;
+    private static final int width = 12; // super small
+    private static final int height = 6; // debug display
+
     private boolean isRunning = true;
 
     @Inject
-    private SceneManager sceneManager;
+    private Director director;
+
+    @Inject
+    private Renderer renderer;
+    private Instant lastUpdate = Instant.now();
 
     @Inject
     public Game(EventBus eventBus) {
@@ -24,13 +36,32 @@ public class Game {
         eventBus.register(new QuitGameListener());
     }
 
-    public void start() {
+    public void run() {
         log.debug("Starting");
-        sceneManager.initialize();
+        initialize();
+        loopUntilStopped();
+        shutdown();
+    }
+
+    private void initialize() {
+        director.initialize();
+        renderer.initialize(width, height);
+    }
+
+    private void loopUntilStopped() {
+        renderer.draw(director.getScene());
         while (isRunning) {
-            sceneManager.update();
+            long delta = Duration.between(lastUpdate, Instant.now()).toMillis();
+            if (delta >= TIME_STEP_IN_MS) {
+                director.update();
+                renderer.draw(director.getScene());
+                lastUpdate = Instant.now();
+            }
         }
-        sceneManager.shutdown();
+    }
+
+    private void shutdown() {
+        director.shutdown();
     }
 
     private class QuitGameListener {

@@ -4,6 +4,8 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+import org.arabellan.tetris.Renderable;
+import org.arabellan.tetris.Scene;
 import org.arabellan.tetris.domain.InvalidMoveException;
 import org.arabellan.tetris.domain.Tetrimino;
 import org.arabellan.tetris.domain.TetriminoFactory;
@@ -13,11 +15,13 @@ import org.arabellan.tetris.events.DropEvent;
 import org.arabellan.tetris.events.MoveEvent;
 import org.arabellan.tetris.events.QuitEvent;
 import org.arabellan.tetris.events.RotateEvent;
-import org.arabellan.tetris.managers.InputManager;
-import org.arabellan.tetris.managers.InputManager.Key;
+import org.arabellan.tetris.Controller;
+import org.arabellan.tetris.Controller.Key;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * This class is responsible for the logic during the game.
@@ -36,7 +40,7 @@ public class InGameScene implements Scene {
     private TetriminoFactory factory;
 
     @Inject
-    private InputManager input;
+    private Controller input;
 
     @Inject
     private EventBus eventBus;
@@ -47,6 +51,11 @@ public class InGameScene implements Scene {
         log.debug("Initializing");
         initializeInput();
         initializeGameObjects();
+    }
+
+    @Override
+    public List<Renderable> getRenderables() {
+        return Arrays.asList(well, activeTetrimino);
     }
 
     private void initializeInput() {
@@ -64,7 +73,6 @@ public class InGameScene implements Scene {
         well = new Well();
         activeTetrimino = factory.getRandomTetrimino();
         nextTetrimino = factory.getRandomTetrimino();
-        render();
     }
 
     @Override
@@ -73,93 +81,7 @@ public class InGameScene implements Scene {
         if (delta >= TIME_STEP_IN_MS) {
             log.debug("Tick!");
             updateActiveTetrimino();
-            render();
             lastUpdate = Instant.now();
-        }
-    }
-
-    private void render() {
-        log.debug("\n" + getVisibleComponents());
-    }
-
-    private String getVisibleComponents() {
-        int[][] matrix = matrixCopy(well.getMatrix());
-        int x = ((int) activeTetrimino.getPosition().getX());
-        int y = ((int) activeTetrimino.getPosition().getY());
-        matrix[y][x] = 3;
-        return matrixToString(matrix);
-    }
-
-    private int[][] matrixCopy(int[][] original) {
-        int[][] copy = matrixCreateEmpty(original);
-        matrixCopyData(original, copy);
-        return copy;
-    }
-
-    private int[][] matrixCreateEmpty(int[][] original) {
-        int rows = matrixGetRows(original);
-        int columns = matrixGetColumns(original);
-        return new int[rows][columns];
-    }
-
-    private void matrixCopyData(int[][] original, int[][] copy) {
-        for (int row = 0; row < original.length; ++row) {
-            for (int column = 0; column < original[row].length; ++column) {
-                copy[row][column] = original[row][column];
-            }
-        }
-    }
-
-    private int matrixGetColumns(int[][] original) {
-        return matrixGetColumns(original[0]);
-    }
-
-    private int matrixGetColumns(int[] row) {
-        return row.length;
-    }
-
-    private int matrixGetRows(int[][] original) {
-        return original.length;
-    }
-
-    public String matrixToString(int[][] matrix) {
-        StringBuilder sb = new StringBuilder();
-
-        for (int[] row : matrix) {
-            sb.append(arrayToString(row)).append("\n");
-        }
-
-        return sb.toString();
-    }
-
-    private String arrayToString(int[] row) {
-        StringBuilder sb = new StringBuilder();
-
-        for (int cell : row) {
-            sb.append(getSymbol(cell)).append(" ");
-        }
-
-        return sb.toString();
-    }
-
-    private char getSymbol(int symbol) {
-        switch (symbol) {
-            case 0:
-                return '.';
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-            case 6:
-            case 7:
-                return 'O';
-            case 8:
-                return ' ';
-            case 9:
-                return 'X';
-            default:
-                return '?';
         }
     }
 
