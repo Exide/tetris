@@ -4,6 +4,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+import org.arabellan.common.Function1;
 import org.arabellan.tetris.Renderable;
 import org.arabellan.tetris.Scene;
 import org.arabellan.tetris.domain.InvalidMoveException;
@@ -77,10 +78,16 @@ public class InGameScene implements Scene {
 
     @Override
     public void update() {
-        long delta = Duration.between(lastUpdate, Instant.now()).toMillis();
-        if (delta >= TIME_STEP_IN_MS) {
+        doAtTimeStep(delta -> {
             log.debug("Tick!");
             updateActiveTetrimino();
+        });
+    }
+
+    private void doAtTimeStep(Function1<Long> function) {
+        long delta = Duration.between(lastUpdate, Instant.now()).toMillis();
+        if (delta >= TIME_STEP_IN_MS) {
+            function.execute(delta);
             lastUpdate = Instant.now();
         }
     }
