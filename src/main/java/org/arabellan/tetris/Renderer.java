@@ -41,7 +41,7 @@ public class Renderer {
                 overlay[y][x] = ACTIVE;
                 break;
             case WELL:
-                matrixCopyData(overlay, object.getRenderable());
+                matrixCopyData(object.getRenderable(), overlay);
                 break;
             default:
                 throw new RuntimeException("Unknown renderable object type!");
