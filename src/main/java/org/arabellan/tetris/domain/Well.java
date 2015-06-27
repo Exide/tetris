@@ -8,29 +8,32 @@ import org.arabellan.tetris.Renderable;
 @Slf4j
 public class Well implements Renderable {
 
+    private static final int SPACE = 0;
+    private static final int OCCUPIED = 9;
+
     @Getter
     int[][] matrix = new int[][]{
-//            {9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9},
-//            {9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9},
-//            {9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9},
-//            {9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9},
-//            {9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9},
-//            {9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9},
-//            {9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9},
-//            {9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9},
-//            {9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9},
-//            {9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9},
-//            {9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9},
-//            {9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9},
-//            {9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9},
-//            {9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9},
-//            {9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9},
-            {9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9},
-            {9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9},
-            {9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9},
-            {9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9},
-            {9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9},
-            {9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9}
+//            {WALL, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, WALL},
+//            {WALL, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, WALL},
+//            {WALL, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, WALL},
+//            {WALL, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, WALL},
+//            {WALL, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, WALL},
+//            {WALL, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, WALL},
+//            {WALL, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, WALL},
+//            {WALL, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, WALL},
+//            {WALL, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, WALL},
+//            {WALL, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, WALL},
+//            {WALL, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, WALL},
+//            {WALL, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, WALL},
+//            {WALL, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, WALL},
+//            {WALL, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, WALL},
+//            {WALL, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, WALL},
+            {OCCUPIED, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, OCCUPIED},
+            {OCCUPIED, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, OCCUPIED},
+            {OCCUPIED, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, OCCUPIED},
+            {OCCUPIED, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, OCCUPIED},
+            {OCCUPIED, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, SPACE, OCCUPIED},
+            {OCCUPIED, OCCUPIED, OCCUPIED, OCCUPIED, OCCUPIED, OCCUPIED, OCCUPIED, OCCUPIED, OCCUPIED, OCCUPIED, OCCUPIED, OCCUPIED}
     };
 
     public Coord getPosition() {
@@ -50,7 +53,7 @@ public class Well implements Renderable {
         int x = (int) tetrimino.getPosition().getX();
         int y = (int) tetrimino.getPosition().getY();
         if (isPositionAllowed(tetrimino)) {
-            matrix[y][x] = 3;
+            matrix[y][x] = OCCUPIED;
         } else {
             throw new InvalidMoveException();
         }
@@ -59,6 +62,6 @@ public class Well implements Renderable {
     public boolean isPositionAllowed(Tetrimino tetrimino) {
         int x = (int) tetrimino.getPosition().getX();
         int y = (int) tetrimino.getPosition().getY();
-        return (matrix[y][x] == 0);
+        return (matrix[y][x] == SPACE);
     }
 }
