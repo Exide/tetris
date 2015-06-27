@@ -5,6 +5,10 @@ import org.arabellan.common.Function2;
 
 import java.util.List;
 
+import static org.arabellan.tetris.domain.Well.ACTIVE;
+import static org.arabellan.tetris.domain.Well.OCCUPIED;
+import static org.arabellan.tetris.domain.Well.SPACE;
+
 @Slf4j
 public class Renderer {
 
@@ -34,7 +38,7 @@ public class Renderer {
             case TETRIMINO:
                 int x = ((int) object.getPosition().getX());
                 int y = ((int) object.getPosition().getY());
-                overlay[y][x] = 3;
+                overlay[y][x] = ACTIVE;
                 break;
             case WELL:
                 matrixCopyData(overlay, object.getRenderable());
@@ -96,19 +100,11 @@ public class Renderer {
 
     private char getSymbol(int symbol) {
         switch (symbol) {
-            case 0:
+            case SPACE:
                 return '.';
-            case 1:
-            case 2:
-            case 3:
-            case 4:
-            case 5:
-            case 6:
-            case 7:
+            case ACTIVE:
                 return 'O';
-            case 8:
-                return ' ';
-            case 9:
+            case OCCUPIED:
                 return 'X';
             default:
                 return '?';

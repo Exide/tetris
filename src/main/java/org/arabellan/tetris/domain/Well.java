@@ -8,8 +8,9 @@ import org.arabellan.tetris.Renderable;
 @Slf4j
 public class Well implements Renderable {
 
-    private static final int SPACE = 0;
-    private static final int OCCUPIED = 9;
+    public static final int SPACE = 0;
+    public static final int ACTIVE = 3;
+    public static final int OCCUPIED = 9;
 
     @Getter
     int[][] matrix = new int[][]{
