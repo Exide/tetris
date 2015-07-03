@@ -8,6 +8,7 @@ import org.arabellan.tetris.Renderable;
 import org.arabellan.tetris.Scene;
 import org.arabellan.ui.Label;
 import org.arabellan.tetris.events.ChangeSceneEvent;
+import org.arabellan.ui.WidgetFactory;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,6 +18,9 @@ import java.util.List;
 public class MainMenuScene implements Scene {
 
     private Label titleLabel;
+
+    @Inject
+    private WidgetFactory factory;
 
     @Inject
     private Controller input;
@@ -29,7 +33,7 @@ public class MainMenuScene implements Scene {
     }
 
     private void initializeGameObjects() {
-        titleLabel = new Label("Main Menu");
+        titleLabel = factory.createLabel("TETRIS");
     }
 
     private void initializeInput() {
