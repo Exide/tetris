@@ -10,6 +10,7 @@ public class WidgetFactory {
     }
 
     private int[][] createShape(String text) {
+        // TODO: Build the shape from the text
         return new int[][]{
                 {9, 9, 9, 0, 9, 9, 9, 0, 9, 9, 9, 0, 9, 9, 0, 0, 9, 9, 9, 0, 9, 9, 9},
                 {0, 9, 0, 0, 9, 0, 0, 0, 0, 9, 0, 0, 9, 0, 9, 0, 0, 9, 0, 0, 9, 0, 0},
