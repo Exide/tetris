@@ -43,6 +43,9 @@ public class Renderer {
             case WELL:
                 matrixCopyData(object.getRenderable(), overlay);
                 break;
+            case UI:
+                matrixCopyData(object.getRenderable(), overlay);
+                break;
             default:
                 throw new RuntimeException("Unknown renderable object type!");
         }

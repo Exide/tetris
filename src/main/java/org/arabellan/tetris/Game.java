@@ -17,8 +17,8 @@ import java.time.Instant;
 public class Game {
 
     private static final long TIME_STEP_IN_MS = 1750;
-    private static final int WIDTH = 12; // super small
-    private static final int HEIGHT = 6; // debug display
+    private static final int WIDTH = 25; // super small
+    private static final int HEIGHT = 10; // debug display
 
     private boolean isRunning = true;
 

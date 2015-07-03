@@ -8,5 +8,5 @@ public interface Renderable {
     Coord getPosition();
     int[][] getRenderable();
 
-    enum Type { WELL, TETRIMINO }
+    enum Type { WELL, TETRIMINO, UI }
 }
