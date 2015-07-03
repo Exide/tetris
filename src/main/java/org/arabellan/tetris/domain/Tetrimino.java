@@ -13,13 +13,13 @@ import org.arabellan.tetris.Renderable;
 public class Tetrimino implements Renderable {
     Color color;
     Type type;
-    int[][] shape;
+    char[][] shape;
     int rotation;
 
     @Setter
     Coord position;
 
-    public int[][] getRenderable() {
+    public char[][] getRenderable() {
         return shape;
     }
 

@@ -6,7 +6,7 @@ public interface Renderable {
 
     Type getTypeOfRenderable();
     Coord getPosition();
-    int[][] getRenderable();
+    char[][] getRenderable();
 
     enum Type { WELL, TETRIMINO, UI }
 }

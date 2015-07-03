@@ -9,7 +9,7 @@ import static org.arabellan.tetris.Renderable.Type.UI;
 @Builder
 public class Label implements Renderable {
     String text;
-    int[][] shape;
+    char[][] shape;
 
     @Override
     public Type getTypeOfRenderable() {
@@ -22,7 +22,7 @@ public class Label implements Renderable {
     }
 
     @Override
-    public int[][] getRenderable() {
+    public char[][] getRenderable() {
         return shape;
     }
 }

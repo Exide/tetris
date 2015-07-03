@@ -14,7 +14,7 @@ public class TetriminoFactory {
     public Tetrimino getRandomTetrimino() {
         Type type = getRandomType();
         Color color = getColor(type);
-        int[][] shape = getShape(type);
+        char[][] shape = getShape(type);
         Coord position = Coord.builder().x(3).y(0).build();
 
         return Tetrimino.builder()
@@ -52,22 +52,47 @@ public class TetriminoFactory {
         }
     }
 
-    private int[][] getShape(Type type) {
+    private char[][] getShape(Type type) {
         switch (type) {
             case I:
-                return new int[][]{{1, 1, 1, 1}};
+                return new char[][] {
+                        {'I'},
+                        {'I'},
+                        {'I'},
+                        {'I'}
+                };
             case J:
-                return new int[][]{{1, 1, 1},{0, 0, 1}};
+                return new char[][] {
+                        {' ', 'J'},
+                        {' ', 'J'},
+                        {'J', 'J'}
+                };
             case L:
-                return new int[][]{{1, 1, 1},{1, 0, 0}};
+                return new char[][] {
+                        {'L', ' '},
+                        {'L', ' '},
+                        {'L', 'L'}
+                };
             case O:
-                return new int[][]{{1, 1},{1, 1}};
+                return new char[][] {
+                        {'O', 'O'},
+                        {'O', 'O'}
+                };
             case S:
-                return new int[][]{{0, 1, 1},{1, 1, 0}};
+                return new char[][] {
+                        {' ', 'S', 'S'},
+                        {'S', 'S', ' '}
+                };
             case T:
-                return new int[][]{{1, 1, 1},{0, 1, 0}};
+                return new char[][] {
+                        {' ', 'T', ' '},
+                        {'T', 'T', 'T'}
+                };
             case Z:
-                return new int[][]{{1, 1, 0},{0, 1, 1}};
+                return new char[][] {
+                        {'Z', 'Z', ' '},
+                        {' ', 'Z', 'Z'}
+                };
             default:
                 throw new RuntimeException("Unknown Tetrimino type!");
         }
