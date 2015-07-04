@@ -128,12 +128,7 @@ public class InGameScene implements Scene {
 
     private void moveTetriminoDown() throws InvalidMoveException {
         log.debug("Moving tetrimino down");
-        Tetrimino potentialTetrimino = Tetrimino.builder()
-                .type(activeTetrimino.getType())
-                .color(activeTetrimino.getColor())
-                .renderable(activeTetrimino.getRenderable())
-                .position(activeTetrimino.getPosition().translate(0, 1))
-                .build();
+        Tetrimino potentialTetrimino = getPotentialTetrimino(0, 1);
 
         if (well.isPositionAllowed(potentialTetrimino)) {
             activeTetrimino.setPosition(potentialTetrimino.getPosition());
@@ -156,6 +151,21 @@ public class InGameScene implements Scene {
 
     private void dropTetrimino() {
         log.debug("Dropping tetrimino");
+        Tetrimino potentialTetrimino = getPotentialTetrimino(0, 1);
+
+        while (well.isPositionAllowed(potentialTetrimino)) {
+            activeTetrimino.setPosition(potentialTetrimino.getPosition());
+            potentialTetrimino = getPotentialTetrimino(0, 1);
+        }
+    }
+
+    private Tetrimino getPotentialTetrimino(int x, int y) {
+        return Tetrimino.builder()
+                .type(activeTetrimino.getType())
+                .color(activeTetrimino.getColor())
+                .renderable(activeTetrimino.getRenderable())
+                .position(activeTetrimino.getPosition().translate(x, y))
+                .build();
     }
 
     private class InputListener {
