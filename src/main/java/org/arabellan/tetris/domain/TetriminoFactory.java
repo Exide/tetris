@@ -15,7 +15,7 @@ public class TetriminoFactory {
     public Tetrimino getRandomTetrimino() {
         Type type = getRandomType();
         Color color = getColor(type);
-        Matrix<Character> renderable = getShape(type);
+        Matrix<Character> renderable = getShape(type).replace(' ', null);
         Coord position = Coord.builder().x(11).y(0).build();
 
         return Tetrimino.builder()

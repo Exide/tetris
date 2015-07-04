@@ -26,7 +26,7 @@ public class Renderer {
     private void clearDisplay() {
         Character[][] emptyMatrix = new Character[height][width];
         for (Character[] row : emptyMatrix) {
-            Arrays.fill(row, ' ');
+            Arrays.fill(row, null);
         }
         display = new Matrix<>(emptyMatrix);
     }
@@ -37,6 +37,6 @@ public class Renderer {
     }
 
     private void render() {
-        log.debug("\n" + display.toString());
+        log.debug("\n" + display.replace(null, ' ').toString());
     }
 }

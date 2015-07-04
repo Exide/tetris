@@ -21,11 +21,10 @@ public class Well implements Renderable {
             {'|', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '|'},
             {'|', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '|'},
             {'+', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '|'},
-    });
+    }).replace(' ', null);
 
-    public Coord getPosition() {
-        return Coord.builder().build();
-    }
+    @Getter
+    Coord position = Coord.builder().build();
 
     public void add(Tetrimino tetrimino) throws InvalidMoveException {
         log.debug("Adding " + tetrimino.getType());
@@ -37,9 +36,6 @@ public class Well implements Renderable {
     }
 
     public boolean isPositionAllowed(Tetrimino tetrimino) {
-//        int x = (int) tetrimino.getPosition().getX();
-//        int y = (int) tetrimino.getPosition().getY();
-//        return (matrix[y][x] == ' ');
-        return true;
+        return !renderable.isOverlapping(tetrimino.getRenderable(), tetrimino.getPosition());
     }
 }
