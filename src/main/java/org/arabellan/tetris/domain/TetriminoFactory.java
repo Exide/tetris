@@ -2,6 +2,7 @@ package org.arabellan.tetris.domain;
 
 import org.arabellan.common.Color;
 import org.arabellan.common.Coord;
+import org.arabellan.common.Matrix;
 
 import java.util.Random;
 
@@ -14,13 +15,13 @@ public class TetriminoFactory {
     public Tetrimino getRandomTetrimino() {
         Type type = getRandomType();
         Color color = getColor(type);
-        char[][] shape = getShape(type);
-        Coord position = Coord.builder().x(3).y(0).build();
+        Matrix<Character> renderable = getShape(type);
+        Coord position = Coord.builder().x(11).y(0).build();
 
         return Tetrimino.builder()
                 .type(type)
                 .color(color)
-                .shape(shape)
+                .renderable(renderable)
                 .position(position)
                 .build();
     }
@@ -52,47 +53,47 @@ public class TetriminoFactory {
         }
     }
 
-    private char[][] getShape(Type type) {
+    private Matrix<Character> getShape(Type type) {
         switch (type) {
             case I:
-                return new char[][] {
+                return new Matrix<>(new Character[][]{
                         {'I'},
                         {'I'},
                         {'I'},
                         {'I'}
-                };
+                });
             case J:
-                return new char[][] {
+                return new Matrix<>(new Character[][]{
                         {' ', 'J'},
                         {' ', 'J'},
                         {'J', 'J'}
-                };
+                });
             case L:
-                return new char[][] {
+                return new Matrix<>(new Character[][]{
                         {'L', ' '},
                         {'L', ' '},
                         {'L', 'L'}
-                };
+                });
             case O:
-                return new char[][] {
+                return new Matrix<>(new Character[][]{
                         {'O', 'O'},
                         {'O', 'O'}
-                };
+                });
             case S:
-                return new char[][] {
+                return new Matrix<>(new Character[][]{
                         {' ', 'S', 'S'},
                         {'S', 'S', ' '}
-                };
+                });
             case T:
-                return new char[][] {
+                return new Matrix<>(new Character[][]{
                         {' ', 'T', ' '},
                         {'T', 'T', 'T'}
-                };
+                });
             case Z:
-                return new char[][] {
+                return new Matrix<>(new Character[][]{
                         {'Z', 'Z', ' '},
                         {' ', 'Z', 'Z'}
-                };
+                });
             default:
                 throw new RuntimeException("Unknown Tetrimino type!");
         }

@@ -1,12 +1,9 @@
 package org.arabellan.tetris;
 
 import org.arabellan.common.Coord;
+import org.arabellan.common.Matrix;
 
 public interface Renderable {
-
-    Type getTypeOfRenderable();
+    Matrix<Character> getRenderable();
     Coord getPosition();
-    char[][] getRenderable();
-
-    enum Type { WELL, TETRIMINO, UI }
 }

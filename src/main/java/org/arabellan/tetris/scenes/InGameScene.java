@@ -131,7 +131,7 @@ public class InGameScene implements Scene {
         Tetrimino potentialTetrimino = Tetrimino.builder()
                 .type(activeTetrimino.getType())
                 .color(activeTetrimino.getColor())
-                .shape(activeTetrimino.getShape())
+                .renderable(activeTetrimino.getRenderable())
                 .position(activeTetrimino.getPosition().translate(0, 1))
                 .build();
 
