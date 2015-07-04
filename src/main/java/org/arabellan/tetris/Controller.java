@@ -13,8 +13,6 @@ import java.util.Map;
 @Slf4j
 public class Controller {
 
-    public enum Key {ESCAPE, LEFT, RIGHT, UP, DOWN, SPACE }
-
     @Inject
     private EventBus eventBus;
     private Map<Key, Event> bindings = new HashMap<>();
@@ -34,4 +32,6 @@ public class Controller {
         bindings.keySet().forEach((key) -> log.debug("Unbinding " + key));
         bindings.clear();
     }
+
+    public enum Key {ESCAPE, LEFT, RIGHT, UP, DOWN, SPACE}
 }
