@@ -32,6 +32,15 @@ public class TetriminoFactory {
         return types[randomType];
     }
 
+    public Tetrimino getMovedStub(Tetrimino tetrimino, Coord coord) {
+        return Tetrimino.builder()
+                .type(tetrimino.getType())
+                .color(tetrimino.getColor())
+                .position(tetrimino.getPosition().translate(coord))
+                .orientation(tetrimino.getOrientation())
+                .build();
+    }
+
     public Tetrimino getRotatedStub(Tetrimino tetrimino) {
         return Tetrimino.builder()
                 .type(tetrimino.getType())

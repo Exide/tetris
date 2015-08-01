@@ -4,6 +4,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+import org.arabellan.common.Coord;
 import org.arabellan.tetris.Controller;
 import org.arabellan.tetris.Controller.Key;
 import org.arabellan.tetris.Renderable;
@@ -129,10 +130,10 @@ public class InGameScene implements Scene {
 
     private void moveTetriminoDown() throws InvalidMoveException {
         log.debug("Moving tetrimino down");
-        Tetrimino potentialTetrimino = getPotentialTetrimino(0, 1);
-
-        if (well.isPositionAllowed(potentialTetrimino)) {
-            activeTetrimino.setPosition(potentialTetrimino.getPosition());
+        Coord nextPosition = Coord.builder().x(0).y(1).build();
+        Tetrimino stub = factory.getMovedStub(activeTetrimino, nextPosition);
+        if (well.isPositionAllowed(stub)) {
+            activeTetrimino.setPosition(stub.getPosition());
         } else {
             throw new InvalidMoveException();
         }
@@ -140,17 +141,19 @@ public class InGameScene implements Scene {
 
     private void moveTetriminoLeft() {
         log.debug("Moving tetrimino to the left");
-        Tetrimino potentialTetrimino = getPotentialTetrimino(-1, 0);
-        if (well.isPositionAllowed(potentialTetrimino)) {
-            activeTetrimino.setPosition(potentialTetrimino.getPosition());
+        Coord nextPosition = Coord.builder().x(-1).y(0).build();
+        Tetrimino stub = factory.getMovedStub(activeTetrimino, nextPosition);
+        if (well.isPositionAllowed(stub)) {
+            activeTetrimino.setPosition(stub.getPosition());
         }
     }
 
     private void moveTetriminoRight() {
         log.debug("Moving tetrimino to the right");
-        Tetrimino potentialTetrimino = getPotentialTetrimino(1, 0);
-        if (well.isPositionAllowed(potentialTetrimino)) {
-            activeTetrimino.setPosition(potentialTetrimino.getPosition());
+        Coord nextPosition = Coord.builder().x(1).y(0).build();
+        Tetrimino stub = factory.getMovedStub(activeTetrimino, nextPosition);
+        if (well.isPositionAllowed(stub)) {
+            activeTetrimino.setPosition(stub.getPosition());
         }
     }
 
@@ -164,21 +167,12 @@ public class InGameScene implements Scene {
 
     private void dropTetrimino() {
         log.debug("Dropping tetrimino");
-        Tetrimino potentialTetrimino = getPotentialTetrimino(0, 1);
-
-        while (well.isPositionAllowed(potentialTetrimino)) {
-            activeTetrimino.setPosition(potentialTetrimino.getPosition());
-            potentialTetrimino = getPotentialTetrimino(0, 1);
+        Coord nextPosition = Coord.builder().x(0).y(1).build();
+        Tetrimino stub = factory.getMovedStub(activeTetrimino, nextPosition);
+        while (well.isPositionAllowed(stub)) {
+            activeTetrimino.setPosition(stub.getPosition());
+            stub = factory.getMovedStub(activeTetrimino, nextPosition);
         }
-    }
-
-    private Tetrimino getPotentialTetrimino(int x, int y) {
-        return Tetrimino.builder()
-                .type(activeTetrimino.getType())
-                .color(activeTetrimino.getColor())
-                .position(activeTetrimino.getPosition().translate(x, y))
-                .orientation(activeTetrimino.getOrientation())
-                .build();
     }
 
     private class InputListener {

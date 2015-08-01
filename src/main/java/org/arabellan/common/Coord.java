@@ -19,4 +19,8 @@ public class Coord {
     public Coord translate(double x, double y) {
         return translate(x, y, 0);
     }
+
+    public Coord translate(Coord coord) {
+        return translate(coord.getX(), coord.getY());
+    }
 }
