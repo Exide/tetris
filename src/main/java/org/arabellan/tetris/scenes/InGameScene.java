@@ -35,6 +35,7 @@ public class InGameScene implements Scene {
 
     private int currentLevel;
     private int currentTimestep;
+    private long currentPoints;
     private Instant lastUpdate = Instant.now();
 
     private Well well;
@@ -58,6 +59,7 @@ public class InGameScene implements Scene {
         initializeGameObjects();
         currentLevel = 1;
         currentTimestep = INITIAL_TIMESTEP_IN_MS;
+        currentPoints = 0;
     }
 
     @Override
@@ -87,10 +89,17 @@ public class InGameScene implements Scene {
         long delta = Duration.between(lastUpdate, Instant.now()).toMillis();
         if (delta >= currentTimestep) {
             log.debug(String.format("Tick! (%sms delta)", delta));
-            increaseLevel();
+            if (shouldIncreaseLevel()) increaseLevel();
             updateActiveTetrimino();
             lastUpdate = Instant.now();
         }
+    }
+
+    private boolean shouldIncreaseLevel() {
+        ++currentPoints; // debug hack until we can clear blocks
+        int pointsRequiredMod = 2;
+        int pointsNeededForNextLevel = currentLevel * pointsRequiredMod * currentLevel;
+        return currentPoints > pointsNeededForNextLevel;
     }
 
     private void increaseLevel() {
