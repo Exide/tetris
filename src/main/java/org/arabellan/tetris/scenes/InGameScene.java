@@ -30,7 +30,7 @@ import java.util.function.LongConsumer;
 @Slf4j
 public class InGameScene implements Scene {
 
-    private static int TIME_STEP_IN_MS = 1750;
+    private static final long TIME_STEP_IN_MS = 1750;
     private Instant lastUpdate = Instant.now();
 
     private Well well;
