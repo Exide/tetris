@@ -80,6 +80,7 @@ public class InGameScene implements Scene {
     public void update() {
         doAtTimeStep(delta -> {
             log.debug("Tick!");
+            moveTetriminoLeft();
             updateActiveTetrimino();
         });
     }
@@ -139,10 +140,18 @@ public class InGameScene implements Scene {
 
     private void moveTetriminoLeft() {
         log.debug("Moving tetrimino to the left");
+        Tetrimino potentialTetrimino = getPotentialTetrimino(-1, 0);
+        if (well.isPositionAllowed(potentialTetrimino)) {
+            activeTetrimino.setPosition(potentialTetrimino.getPosition());
+        }
     }
 
     private void moveTetriminoRight() {
         log.debug("Moving tetrimino to the right");
+        Tetrimino potentialTetrimino = getPotentialTetrimino(1, 0);
+        if (well.isPositionAllowed(potentialTetrimino)) {
+            activeTetrimino.setPosition(potentialTetrimino.getPosition());
+        }
     }
 
     private void rotateTetrimino() {
