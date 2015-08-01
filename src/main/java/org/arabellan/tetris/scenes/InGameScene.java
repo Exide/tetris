@@ -80,6 +80,7 @@ public class InGameScene implements Scene {
     public void update() {
         doAtTimeStep(delta -> {
             log.debug("Tick!");
+            rotateTetrimino();
             updateActiveTetrimino();
         });
     }
@@ -155,6 +156,10 @@ public class InGameScene implements Scene {
 
     private void rotateTetrimino() {
         log.debug("Rotating tetrimino");
+        Tetrimino rotatedStub = factory.getRotatedStub(activeTetrimino);
+        if (well.isPositionAllowed(rotatedStub)) {
+            activeTetrimino.setOrientation(rotatedStub.getOrientation());
+        }
     }
 
     private void dropTetrimino() {
@@ -171,8 +176,8 @@ public class InGameScene implements Scene {
         return Tetrimino.builder()
                 .type(activeTetrimino.getType())
                 .color(activeTetrimino.getColor())
-                .renderable(activeTetrimino.getRenderable())
                 .position(activeTetrimino.getPosition().translate(x, y))
+                .orientation(activeTetrimino.getOrientation())
                 .build();
     }
 
