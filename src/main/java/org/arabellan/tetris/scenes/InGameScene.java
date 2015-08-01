@@ -4,7 +4,8 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
-import org.arabellan.common.Function1;
+import org.arabellan.tetris.Controller;
+import org.arabellan.tetris.Controller.Key;
 import org.arabellan.tetris.Renderable;
 import org.arabellan.tetris.Scene;
 import org.arabellan.tetris.domain.InvalidMoveException;
@@ -16,13 +17,12 @@ import org.arabellan.tetris.events.DropEvent;
 import org.arabellan.tetris.events.MoveEvent;
 import org.arabellan.tetris.events.QuitEvent;
 import org.arabellan.tetris.events.RotateEvent;
-import org.arabellan.tetris.Controller;
-import org.arabellan.tetris.Controller.Key;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.LongConsumer;
 
 /**
  * This class is responsible for the logic during the game.
@@ -84,10 +84,10 @@ public class InGameScene implements Scene {
         });
     }
 
-    private void doAtTimeStep(Function1<Long> function) {
+    private void doAtTimeStep(LongConsumer consumer) {
         long delta = Duration.between(lastUpdate, Instant.now()).toMillis();
         if (delta >= TIME_STEP_IN_MS) {
-            function.execute(delta);
+            consumer.accept(delta);
             lastUpdate = Instant.now();
         }
     }

@@ -4,11 +4,11 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
-import org.arabellan.common.Function1;
 import org.arabellan.tetris.events.QuitEvent;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.function.LongConsumer;
 
 /**
  * This class is responsible for initializing and updating management objects.
@@ -55,11 +55,11 @@ public class Game {
         });
     }
 
-    private void doAtTimeStep(Function1<Long> function) {
+    private void doAtTimeStep(LongConsumer consumer) {
         while (isRunning) {
             long delta = Duration.between(lastUpdate, Instant.now()).toMillis();
             if (delta >= TIME_STEP_IN_MS) {
-                function.execute(delta);
+                consumer.accept(delta);
                 lastUpdate = Instant.now();
             }
         }
