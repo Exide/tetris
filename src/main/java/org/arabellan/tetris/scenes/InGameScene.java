@@ -23,7 +23,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.LongConsumer;
 
 /**
  * This class is responsible for the logic during the game.
@@ -31,7 +30,11 @@ import java.util.function.LongConsumer;
 @Slf4j
 public class InGameScene implements Scene {
 
-    private static final long TIME_STEP_IN_MS = 1750;
+    private static final int INITIAL_TIMESTEP_IN_MS = 1750;
+    private static final int GAMESPEED_INCREASE_IN_MS = 50;
+
+    private int currentLevel;
+    private int currentTimestep;
     private Instant lastUpdate = Instant.now();
 
     private Well well;
@@ -53,6 +56,8 @@ public class InGameScene implements Scene {
         log.debug("Initializing");
         initializeInput();
         initializeGameObjects();
+        currentLevel = 1;
+        currentTimestep = INITIAL_TIMESTEP_IN_MS;
     }
 
     @Override
@@ -79,18 +84,20 @@ public class InGameScene implements Scene {
 
     @Override
     public void update() {
-        doAtTimeStep(delta -> {
-            log.debug("Tick!");
-            updateActiveTetrimino();
-        });
-    }
-
-    private void doAtTimeStep(LongConsumer consumer) {
         long delta = Duration.between(lastUpdate, Instant.now()).toMillis();
-        if (delta >= TIME_STEP_IN_MS) {
-            consumer.accept(delta);
+        if (delta >= currentTimestep) {
+            log.debug(String.format("Tick! (%sms delta)", delta));
+            increaseLevel();
+            updateActiveTetrimino();
             lastUpdate = Instant.now();
         }
+    }
+
+    private void increaseLevel() {
+        ++currentLevel;
+        currentTimestep -= GAMESPEED_INCREASE_IN_MS;
+        double currentTimestepInSeconds = ((double) currentTimestep) / 1000;
+        log.debug(String.format("Level increased to %s (%ss per tick)", currentLevel, currentTimestepInSeconds));
     }
 
     private void updateActiveTetrimino() {

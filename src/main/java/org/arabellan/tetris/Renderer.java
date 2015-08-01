@@ -18,9 +18,9 @@ public class Renderer {
     }
 
     public void draw(Scene scene) {
-        clearDisplay();
-        addSceneObjectsToDisplay(scene);
-        render();
+//        clearDisplay();
+//        addSceneObjectsToDisplay(scene);
+//        render();
     }
 
     private void clearDisplay() {

@@ -6,17 +6,12 @@ import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.arabellan.tetris.events.QuitEvent;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.function.LongConsumer;
-
 /**
  * This class is responsible for initializing and updating management objects.
  */
 @Slf4j
 public class Game {
 
-    private static final long TIME_STEP_IN_MS = 1750;
     private static final int WIDTH = 25; // super small
     private static final int HEIGHT = 10; // debug display
 
@@ -27,7 +22,6 @@ public class Game {
 
     @Inject
     private Renderer renderer;
-    private Instant lastUpdate = Instant.now();
 
     @Inject
     public Game(EventBus eventBus) {
@@ -36,33 +30,17 @@ public class Game {
     }
 
     public void run() {
-        log.debug("Starting");
         initialize();
-        loopUntilStopped();
+        while (isRunning) {
+            director.update();
+            renderer.draw(director.getScene());
+        }
         shutdown();
     }
 
     private void initialize() {
         director.initialize();
         renderer.initialize(WIDTH, HEIGHT);
-    }
-
-    private void loopUntilStopped() {
-        renderer.draw(director.getScene());
-        doAtTimeStep(delta -> {
-            director.update();
-            renderer.draw(director.getScene());
-        });
-    }
-
-    private void doAtTimeStep(LongConsumer consumer) {
-        while (isRunning) {
-            long delta = Duration.between(lastUpdate, Instant.now()).toMillis();
-            if (delta >= TIME_STEP_IN_MS) {
-                consumer.accept(delta);
-                lastUpdate = Instant.now();
-            }
-        }
     }
 
     private void shutdown() {
