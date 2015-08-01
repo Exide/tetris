@@ -81,7 +81,6 @@ public class InGameScene implements Scene {
     public void update() {
         doAtTimeStep(delta -> {
             log.debug("Tick!");
-            rotateTetrimino();
             updateActiveTetrimino();
         });
     }
