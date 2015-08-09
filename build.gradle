@@ -6,11 +6,10 @@ repositories {
 }
 
 dependencies {
-//    compile 'org.lwjgl.lwjgl:lwjgl:2.9.1'
-//    compile 'com.google.guava:guava:18.0'
-//    compile 'com.google.code.gson:gson:2.3.1'
     compile 'com.google.inject:guice:4.+'
     compile 'org.projectlombok:lombok:1.+'
+    compile 'org.lwjgl:lwjgl:3.+'
+    compile 'org.lwjgl:lwjgl-platform:3.+'
 
     // logging
     compile 'org.slf4j:slf4j-api:1.+'
@@ -24,9 +23,5 @@ dependencies {
 jar {
     manifest {
         attributes "Main-Class": "org.arabellan.tetris.Main"
-    }
-
-    from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
