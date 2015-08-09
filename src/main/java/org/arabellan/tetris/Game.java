@@ -6,14 +6,16 @@ import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.arabellan.tetris.events.QuitEvent;
 
+import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
+
 /**
  * This class is responsible for initializing and updating management objects.
  */
 @Slf4j
 public class Game {
 
-    private static final int WIDTH = 25; // super small
-    private static final int HEIGHT = 10; // debug display
+    private static final int WIDTH = 800;
+    private static final int HEIGHT = 600;
 
     private boolean isRunning = true;
 
@@ -21,7 +23,8 @@ public class Game {
     private Director director;
 
     @Inject
-    private Renderer renderer;
+//    private ConsoleRenderer renderer;
+    private LWJGLRenderer renderer;
 
     @Inject
     public Game(EventBus eventBus) {
@@ -32,10 +35,17 @@ public class Game {
     public void run() {
         initialize();
         while (isRunning) {
+            exitOnWindowClose();
             director.update();
             renderer.draw(director.getScene());
         }
         shutdown();
+    }
+
+    private void exitOnWindowClose() {
+        if (glfwWindowShouldClose(renderer.getWindow()) == 1) {
+            isRunning = false;
+        }
     }
 
     private void initialize() {
