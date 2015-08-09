@@ -5,8 +5,8 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.arabellan.tetris.events.QuitEvent;
-
-import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
+import org.arabellan.tetris.lwjgl.GLFWWindow;
+import org.arabellan.tetris.lwjgl.LWJGLRenderer;
 
 /**
  * This class is responsible for initializing and updating management objects.
@@ -27,6 +27,9 @@ public class Game {
     private LWJGLRenderer renderer;
 
     @Inject
+    private GLFWWindow window;
+
+    @Inject
     public Game(EventBus eventBus) {
         log.debug("Constructing");
         eventBus.register(new QuitGameListener());
@@ -35,26 +38,22 @@ public class Game {
     public void run() {
         initialize();
         while (isRunning) {
-            exitOnWindowClose();
+            window.update();
             director.update();
             renderer.draw(director.getScene());
         }
         shutdown();
     }
 
-    private void exitOnWindowClose() {
-        if (glfwWindowShouldClose(renderer.getWindow()) == 1) {
-            isRunning = false;
-        }
-    }
-
     private void initialize() {
-        director.initialize();
+        window.initialize(WIDTH, HEIGHT);
         renderer.initialize(WIDTH, HEIGHT);
+        director.initialize();
     }
 
     private void shutdown() {
         director.shutdown();
+        window.shutdown();
     }
 
     private class QuitGameListener {
