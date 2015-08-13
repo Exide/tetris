@@ -38,9 +38,9 @@ public class Game {
     public void run() {
         initialize();
         while (isRunning) {
-            window.update();
             director.update();
             renderer.draw(director.getScene());
+            window.update();
         }
         shutdown();
     }
