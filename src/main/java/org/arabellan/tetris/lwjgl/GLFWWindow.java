@@ -8,15 +8,22 @@ import org.lwjgl.glfw.GLFWvidmode;
 
 import java.nio.ByteBuffer;
 
+import static org.lwjgl.glfw.Callbacks.glfwSetCallback;
+import static org.lwjgl.glfw.GLFW.GLFWWindowSizeCallback;
+import static org.lwjgl.glfw.GLFW.GLFW_CLIENT_API;
+import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MAJOR;
+import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MINOR;
+import static org.lwjgl.glfw.GLFW.GLFW_OPENGL_API;
+import static org.lwjgl.glfw.GLFW.GLFW_OPENGL_CORE_PROFILE;
+import static org.lwjgl.glfw.GLFW.GLFW_OPENGL_FORWARD_COMPAT;
+import static org.lwjgl.glfw.GLFW.GLFW_OPENGL_PROFILE;
 import static org.lwjgl.glfw.GLFW.GLFW_RESIZABLE;
 import static org.lwjgl.glfw.GLFW.glfwCreateWindow;
 import static org.lwjgl.glfw.GLFW.glfwDestroyWindow;
 import static org.lwjgl.glfw.GLFW.glfwGetPrimaryMonitor;
 import static org.lwjgl.glfw.GLFW.glfwGetVideoMode;
-import static org.lwjgl.glfw.GLFW.glfwInit;
 import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
 import static org.lwjgl.glfw.GLFW.glfwPollEvents;
-import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
 import static org.lwjgl.glfw.GLFW.glfwSetWindowPos;
 import static org.lwjgl.glfw.GLFW.glfwShowWindow;
 import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
@@ -25,6 +32,7 @@ import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.opengl.GL11.GL_TRUE;
+import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class GLFWWindow implements Window {
@@ -42,6 +50,11 @@ public class GLFWWindow implements Window {
     @Override
     public void initialize(int width, int height) {
         glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
         long monitorToUse = NULL;
         long windowToShareResourcesWith = NULL;
@@ -58,6 +71,8 @@ public class GLFWWindow implements Window {
         int y = (GLFWvidmode.height(vidmode) - height) / 2;
         glfwSetWindowPos(window, x, y);
 
+        glfwSetCallback(window, GLFWWindowSizeCallback((window, w, h) -> glViewport(0, 0, w, h)));
+
         // Make the OpenGL context current
         glfwMakeContextCurrent(window);
 
@@ -70,12 +85,12 @@ public class GLFWWindow implements Window {
 
     @Override
     public void update() {
-        glfwPollEvents();
-        glfwSwapBuffers(window);
-
         if (glfwWindowShouldClose(window) == 1) {
             eventBus.post(new QuitEvent());
         }
+
+        glfwSwapBuffers(window);
+        glfwPollEvents();
     }
 
     @Override
