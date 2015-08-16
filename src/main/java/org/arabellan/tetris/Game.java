@@ -5,8 +5,8 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.arabellan.tetris.events.QuitEvent;
-import org.arabellan.tetris.lwjgl.GLFWWindow;
-import org.arabellan.tetris.lwjgl.LWJGLRenderer;
+import org.arabellan.lwjgl.Window;
+import org.arabellan.lwjgl.GLRenderer;
 
 /**
  * This class is responsible for initializing and updating management objects.
@@ -24,10 +24,10 @@ public class Game {
 
     @Inject
 //    private ConsoleRenderer renderer;
-    private LWJGLRenderer renderer;
+    private GLRenderer renderer;
 
     @Inject
-    private GLFWWindow window;
+    private Window window;
 
     @Inject
     public Game(EventBus eventBus) {

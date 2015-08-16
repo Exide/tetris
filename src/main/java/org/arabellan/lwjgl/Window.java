@@ -1,15 +1,12 @@
-package org.arabellan.tetris.lwjgl;
+package org.arabellan.lwjgl;
 
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
-import org.arabellan.tetris.Window;
 import org.arabellan.tetris.events.QuitEvent;
 import org.lwjgl.glfw.GLFWvidmode;
 
 import java.nio.ByteBuffer;
 
-import static org.lwjgl.glfw.Callbacks.glfwSetCallback;
-import static org.lwjgl.glfw.GLFW.GLFWWindowSizeCallback;
 import static org.lwjgl.glfw.GLFW.GLFW_CLIENT_API;
 import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MAJOR;
 import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MINOR;
@@ -30,12 +27,10 @@ import static org.lwjgl.glfw.GLFW.glfwSwapBuffers;
 import static org.lwjgl.glfw.GLFW.glfwSwapInterval;
 import static org.lwjgl.glfw.GLFW.glfwWindowHint;
 import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
-import static org.lwjgl.opengl.GL11.GL_FALSE;
 import static org.lwjgl.opengl.GL11.GL_TRUE;
-import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-public class GLFWWindow implements Window {
+public class Window {
 
     private static final String WINDOW_TITLE = "Tetris";
 
@@ -43,13 +38,12 @@ public class GLFWWindow implements Window {
     private long window;
 
     @Inject
-    GLFWWindow(EventBus eventBus) {
+    Window(EventBus eventBus) {
         this.eventBus = eventBus;
     }
 
-    @Override
     public void initialize(int width, int height) {
-        glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+        glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
         glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -71,7 +65,7 @@ public class GLFWWindow implements Window {
         int y = (GLFWvidmode.height(vidmode) - height) / 2;
         glfwSetWindowPos(window, x, y);
 
-        glfwSetCallback(window, GLFWWindowSizeCallback((window, w, h) -> glViewport(0, 0, w, h)));
+//        glfwSetCallback(window, GLFWWindowSizeCallback((long window, int w, int h) -> null));
 
         // Make the OpenGL context current
         glfwMakeContextCurrent(window);
@@ -83,7 +77,6 @@ public class GLFWWindow implements Window {
         glfwShowWindow(window);
     }
 
-    @Override
     public void update() {
         if (glfwWindowShouldClose(window) == 1) {
             eventBus.post(new QuitEvent());
@@ -93,7 +86,6 @@ public class GLFWWindow implements Window {
         glfwPollEvents();
     }
 
-    @Override
     public void shutdown() {
         glfwDestroyWindow(window);
     }

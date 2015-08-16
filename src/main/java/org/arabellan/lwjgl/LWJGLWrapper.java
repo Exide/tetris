@@ -1,4 +1,4 @@
-package org.arabellan.tetris.lwjgl;
+package org.arabellan.lwjgl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.arabellan.common.Platform;
@@ -11,21 +11,28 @@ import static org.lwjgl.glfw.GLFW.glfwInit;
 import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
 import static org.lwjgl.glfw.GLFW.glfwTerminate;
 import static org.lwjgl.opengl.GL11.GL_TRUE;
+import static org.lwjgl.system.MemoryUtil.memDecodeUTF8;
 
 @Slf4j
 public class LWJGLWrapper {
-
-    private GLFWErrorCallback errorCallback;
 
     public void initialize() {
         loadLWJGLNativeLibs();
         log.info("LWJGL version: " + org.lwjgl.Sys.getVersion());
 
-        errorCallback = errorCallbackPrint(System.err);
-        glfwSetErrorCallback(errorCallback);
+        glfwSetErrorCallback(createErrorLogger());
         if (glfwInit() != GL_TRUE) {
             throw new IllegalStateException("Unable to initialize GLFW");
         }
+    }
+
+    private GLFWErrorCallback createErrorLogger() {
+        return new GLFWErrorCallback() {
+            @Override
+            public void invoke(int error, long description) {
+                log.error(String.format("(%s) %s", error, memDecodeUTF8(description)));
+            }
+        };
     }
 
     private void loadLWJGLNativeLibs() {
@@ -47,6 +54,5 @@ public class LWJGLWrapper {
 
     public void shutdown() {
         glfwTerminate();
-        errorCallback.release();
     }
 }

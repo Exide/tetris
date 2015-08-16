@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
-public class ConsoleRenderer implements Renderer {
+public class ConsoleRenderer {
 
     private Matrix<Character> display;
     private int width, height;

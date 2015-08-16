@@ -10,6 +10,7 @@ dependencies {
     compile 'org.projectlombok:lombok:1.+'
     compile 'org.lwjgl:lwjgl:3.+'
     compile 'org.lwjgl:lwjgl-platform:3.+'
+    compile 'org.joml:joml:1.+'
 
     // logging
     compile 'org.slf4j:slf4j-api:1.+'
