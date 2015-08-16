@@ -36,12 +36,12 @@ public class GLRenderer {
     private static final int NO_SHADER = 0;
 
     private float[] square = {
-            -1f, -1f, // A    E--D
-            -1f,  1f, // B     \ |    counter-clockwise
-             1f, -1f, // C      'F
-             1f,  1f, // D    B.
-            -1f,  1f, // E    | \     clockwise
-             1f, -1f, // F    A--C
+            -10f, -10f, // A    E--D
+            -10f,  10f, // B     \ |    counter-clockwise
+             10f, -10f, // C      'F
+             10f,  10f, // D    B.
+            -10f,  10f, // E    | \     clockwise
+             10f, -10f, // F    A--C
     };
 
     private int vao;
@@ -141,19 +141,16 @@ public class GLRenderer {
 
     private FloatBuffer getModelMatrix(Vector3f position) {
         Matrix4f model = new Matrix4f().translate(position);
-//        log.debug("modelMatrix:\n" + model);
         return matrixAsBuffer(model);
     }
 
     private FloatBuffer getViewMatrix(Camera camera) {
         Matrix4f view = new Matrix4f().lookAt(camera.position, camera.focus, camera.up);
-//        log.debug("viewMatrix:\n" + view);
         return matrixAsBuffer(view);
     }
 
     private FloatBuffer getProjectionMatrix(Camera camera) {
-        Matrix4f projection = new Matrix4f().setPerspective(camera.fieldOfView, camera.aspectRatio, camera.nearClip, camera.farClip);
-//        log.debug("projectionMatrix:\n" + projection);
+        Matrix4f projection = new Matrix4f().setOrtho(camera.left, camera.right, camera.bottom, camera.top, camera.nearClip, camera.farClip);
         return matrixAsBuffer(projection);
     }
 

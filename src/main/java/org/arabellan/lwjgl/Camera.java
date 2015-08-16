@@ -7,21 +7,32 @@ public class Camera {
     Vector3f focus;
     Vector3f up;
 
+    float left;
+    float right;
+    float top;
+    float bottom;
+
     float fieldOfView;
     float aspectRatio;
     float nearClip;
     float farClip;
 
     Camera(int screenWidth, int screenHeight) {
-        position = new Vector3f(0, 0, 6);
+        position = new Vector3f(0, 0, 3);
         focus = new Vector3f(0, 0, 0);
         up = new Vector3f(0, 1, 0);
 
-        fieldOfView = 90f;
-//        aspectRatio = 1.6f; // 16:10
-//        aspectRatio = screenWidth / screenHeight;
-        aspectRatio = 1.0f;
+        int halfWidth = screenWidth / 2;
+        int halfHeight = screenHeight / 2;
+
+        left = -halfWidth;
+        right = halfWidth;
+        top = halfHeight;
+        bottom = -halfHeight;
+
+        fieldOfView = 60f;
+        aspectRatio = screenWidth / screenHeight;
         nearClip = 1f;
-        farClip = 10f;
+        farClip = 5f;
     }
 }
