@@ -133,9 +133,9 @@ public class GLRenderer {
         Vector3f objectPosition = new Vector3f(0, 0, 0);
         int objectVAO = vao;
 
-        shader.setAttribute("model", getModelMatrix(objectPosition));
-        shader.setAttribute("view", getViewMatrix(camera));
-        shader.setAttribute("projection", getProjectionMatrix(camera));
+        shader.setUniform("model", getModelMatrix(objectPosition));
+        shader.setUniform("view", getViewMatrix(camera));
+        shader.setUniform("projection", getProjectionMatrix(camera));
 
         drawObject(objectVAO);
 

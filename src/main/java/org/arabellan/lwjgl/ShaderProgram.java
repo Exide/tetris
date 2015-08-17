@@ -68,7 +68,7 @@ public class ShaderProgram {
         throwIfError();
     }
 
-    public void setAttribute(String name, FloatBuffer matrix) {
+    public void setUniform(String name, FloatBuffer matrix) {
         int uniform = glGetUniformLocation(id, name);
         throwIfError();
 
