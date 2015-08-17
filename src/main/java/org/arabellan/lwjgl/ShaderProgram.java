@@ -60,19 +60,19 @@ public class ShaderProgram {
         throwIfError();
     }
 
-    public void disableAttribute(String name) {
-        int attribute = glGetAttribLocation(id, name);
-        throwIfError();
-
-        glDisableVertexAttribArray(attribute);
-        throwIfError();
-    }
-
     public void setUniform(String name, FloatBuffer matrix) {
         int uniform = glGetUniformLocation(id, name);
         throwIfError();
 
         glUniformMatrix4fv(uniform, false, matrix);
+        throwIfError();
+    }
+
+    public void disableAttribute(String name) {
+        int attribute = glGetAttribLocation(id, name);
+        throwIfError();
+
+        glDisableVertexAttribArray(attribute);
         throwIfError();
     }
 
