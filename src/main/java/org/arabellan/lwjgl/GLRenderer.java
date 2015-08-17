@@ -22,7 +22,10 @@ import static org.lwjgl.opengl.GL11.glDrawArrays;
 import static org.lwjgl.opengl.GL11.glGetString;
 import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
+import static org.lwjgl.opengl.GL15.glBufferData;
+import static org.lwjgl.opengl.GL15.glGenBuffers;
 import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
 import static org.lwjgl.opengl.GL20.GL_SHADING_LANGUAGE_VERSION;
 import static org.lwjgl.opengl.GL20.GL_VERTEX_SHADER;
@@ -33,8 +36,6 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 @Slf4j
 public class GLRenderer {
 
-    private static final int NO_SHADER = 0;
-
     private float[] square = {
             -10f, -10f, // A    E--D
             -10f,  10f, // B     \ |    counter-clockwise
@@ -44,17 +45,17 @@ public class GLRenderer {
              10f, -10f, // F    A--C
     };
 
+    private int vbo;
     private int vao;
     private ShaderProgram shader;
     private Camera camera;
-    private VertexBufferObject vbo;
 
     public void initialize(int width, int height) {
         createGLContext();
         initializeGLState(width, height);
 
-        vao = createVAO();
-        vbo = createVBOFromMesh(square);
+        vbo = createVBO(square);
+        vao = createVAO(vbo);
         shader = createDefaultShader();
         camera = new Camera(width, height);
     }
@@ -78,24 +79,41 @@ public class GLRenderer {
         throwIfError();
     }
 
-    private int createVAO() {
+    private int createVBO(float[] mesh) {
+        int id = glGenBuffers();
+        throwIfError();
+
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(mesh.length);
+        buffer.put(mesh).flip();
+
+        glBindBuffer(GL_ARRAY_BUFFER, id);
+        throwIfError();
+
+        glBufferData(GL_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
+        throwIfError();
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        throwIfError();
+
+        return id;
+    }
+
+    private int createVAO(int vbo) {
         int id = glGenVertexArrays();
         throwIfError();
 
         glBindVertexArray(id);
         throwIfError();
 
+        // use these vertices to draw our object
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        throwIfError();
+
+        // read the vertices in this way
+        glVertexAttribPointer(0, 2, GL_FLOAT, false, 0, 0);
+        throwIfError();
+
         return id;
-    }
-
-    private VertexBufferObject createVBOFromMesh(float[] mesh) {
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(mesh.length);
-        buffer.put(mesh).flip();
-
-        VertexBufferObject vbo = new VertexBufferObject();
-        vbo.uploadMesh(buffer);
-
-        return vbo;
     }
 
     private ShaderProgram createDefaultShader() {
@@ -113,28 +131,22 @@ public class GLRenderer {
 
         // TODO: get objects to render from the scene
         Vector3f objectPosition = new Vector3f(0, 0, 0);
-        VertexBufferObject objectVBO = vbo;
+        int objectVAO = vao;
 
         shader.setAttribute("model", getModelMatrix(objectPosition));
         shader.setAttribute("view", getViewMatrix(camera));
         shader.setAttribute("projection", getProjectionMatrix(camera));
 
-        drawObject(objectVBO);
+        drawObject(objectVAO);
 
         shader.disableAttribute("position");
         shader.disable();
     }
 
-    private void drawObject(VertexBufferObject vbo) {
-        // use these vertices to draw our object
-        glBindBuffer(GL_ARRAY_BUFFER, vbo.id);
+    private void drawObject(int vao) {
+        glBindVertexArray(vao);
         throwIfError();
 
-        // read the vertices in this way
-        glVertexAttribPointer(0, 2, GL_FLOAT, false, 0, 0);
-        throwIfError();
-
-        // use the vertices to draw triangles
         glDrawArrays(GL_TRIANGLES, 0, square.length);
         throwIfError();
     }
