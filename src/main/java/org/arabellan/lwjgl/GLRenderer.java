@@ -1,6 +1,7 @@
 package org.arabellan.lwjgl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.arabellan.tetris.Renderable;
 import org.arabellan.tetris.Scene;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -125,15 +126,18 @@ public class GLRenderer {
         shader.enable();
         shader.enableAttribute("position");
 
-        // TODO: get objects to render from the scene
-        Vector3f objectPosition = new Vector3f(0, 0, 0);
-        int objectVAO = vao;
+        for (Renderable r : scene.getRenderables()) {
+            float x = (float) r.getPosition().getX();
+            float y = (float) r.getPosition().getY();
+            float z = (float) r.getPosition().getZ();
+            Vector3f objectPosition = new Vector3f(x, y, z);
 
-        shader.setUniform("model", getModelMatrix(objectPosition));
-        shader.setUniform("view", getViewMatrix(camera));
-        shader.setUniform("projection", getProjectionMatrix(camera));
+            shader.setUniform("model", getModelMatrix(objectPosition));
+            shader.setUniform("view", getViewMatrix(camera));
+            shader.setUniform("projection", getProjectionMatrix(camera));
 
-        drawObject(objectVAO);
+            drawObject(vao);
+        }
 
         shader.disableAttribute("position");
         shader.disable();
