@@ -20,7 +20,6 @@ import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11.glDrawArrays;
 import static org.lwjgl.opengl.GL11.glGetString;
-import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
@@ -72,9 +71,6 @@ public class GLRenderer {
     }
 
     private void initializeGLState(int width, int height) {
-        glViewport(0, 0, width, height);
-        throwIfError();
-
         glClearColor(0, 0, 0, 0);
         throwIfError();
     }

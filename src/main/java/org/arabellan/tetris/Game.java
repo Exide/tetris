@@ -23,7 +23,6 @@ public class Game {
     private Director director;
 
     @Inject
-//    private ConsoleRenderer renderer;
     private GLRenderer renderer;
 
     @Inject

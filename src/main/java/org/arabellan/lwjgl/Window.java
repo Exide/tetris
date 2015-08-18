@@ -65,8 +65,6 @@ public class Window {
         int y = (GLFWvidmode.height(vidmode) - height) / 2;
         glfwSetWindowPos(window, x, y);
 
-//        glfwSetCallback(window, GLFWWindowSizeCallback((long window, int w, int h) -> null));
-
         // Make the OpenGL context current
         glfwMakeContextCurrent(window);
 
