@@ -1,4 +1,4 @@
-package org.arabellan.tetris;
+package org.arabellan.tetris.scenes;
 
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;

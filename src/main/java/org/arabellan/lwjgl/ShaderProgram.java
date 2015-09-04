@@ -1,5 +1,7 @@
 package org.arabellan.lwjgl;
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.nio.FloatBuffer;
 import java.util.List;
 
@@ -18,6 +20,7 @@ import static org.lwjgl.opengl.GL20.glLinkProgram;
 import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
 import static org.lwjgl.opengl.GL20.glUseProgram;
 
+@Slf4j
 public class ShaderProgram {
 
     private static final int NO_SHADER = 0;

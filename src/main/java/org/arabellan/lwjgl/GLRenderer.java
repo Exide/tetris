@@ -1,15 +1,17 @@
 package org.arabellan.lwjgl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.arabellan.common.Matrix;
 import org.arabellan.tetris.Renderable;
-import org.arabellan.tetris.Scene;
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GLContext;
 
 import java.nio.FloatBuffer;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.arabellan.lwjgl.GLException.throwIfError;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
@@ -36,52 +38,41 @@ import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 @Slf4j
 public class GLRenderer {
 
-    private float[] square = {
-            -10f, -10f, // A    E--D
-            -10f,  10f, // B     \ |    counter-clockwise
-             10f, -10f, // C      'F
-             10f,  10f, // D    B.
-            -10f,  10f, // E    | \     clockwise
-             10f, -10f, // F    A--C
+    // TODO: move all this shit into a Block class maybe?
+    private int blockVAO;
+    private int blockSize = 20;
+    private float p = 1f * (blockSize / 2);
+    private float[] block = {
+            -p, -p, // A    E--D
+            -p, +p, // B     \ |    counter-clockwise
+            +p, -p, // C      'F
+            +p, +p, // D    B.
+            -p, +p, // E    | \     clockwise
+            +p, -p, // F    A--C
     };
 
-    private int vbo;
-    private int vao;
     private ShaderProgram shader;
     private Camera camera;
 
     public void initialize(int width, int height) {
         createGLContext();
         initializeGLState(width, height);
-
-        vbo = createVBO(square);
-        vao = createVAO(vbo);
+        blockVAO = loadBlockMesh();
         shader = createDefaultShader();
         camera = new Camera(width, height);
     }
 
-    private void createGLContext() {
-        GLContext.createFromCurrent();
-        throwIfError();
-
-        log.info("GL version: " + glGetString(GL_VERSION));
-        throwIfError();
-
-        log.info("GLSL version: " + glGetString(GL_SHADING_LANGUAGE_VERSION));
-        throwIfError();
+    private int loadBlockMesh() {
+        int vbo = createVBO(block);
+        return createVAO(vbo);
     }
 
-    private void initializeGLState(int width, int height) {
-        glClearColor(0, 0, 0, 0);
-        throwIfError();
-    }
-
-    private int createVBO(float[] mesh) {
+    private int createVBO(float[] vertices) {
         int id = glGenBuffers();
         throwIfError();
 
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(mesh.length);
-        buffer.put(mesh).flip();
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(vertices.length);
+        buffer.put(vertices).flip();
 
         glBindBuffer(GL_ARRAY_BUFFER, id);
         throwIfError();
@@ -113,42 +104,74 @@ public class GLRenderer {
         return id;
     }
 
+    private void createGLContext() {
+        GLContext.createFromCurrent();
+        throwIfError();
+
+        log.info("GL version: " + glGetString(GL_VERSION));
+        throwIfError();
+
+        log.info("GLSL version: " + glGetString(GL_SHADING_LANGUAGE_VERSION));
+        throwIfError();
+    }
+
+    private void initializeGLState(int width, int height) {
+        glClearColor(0, 0, 0, 0);
+        throwIfError();
+    }
+
     private ShaderProgram createDefaultShader() {
         Shader vertex = new Shader("shaders/vertex.glsl", GL_VERTEX_SHADER);
         Shader fragment = new Shader("shaders/fragment.glsl", GL_FRAGMENT_SHADER);
         return new ShaderProgram(Arrays.asList(vertex, fragment));
     }
 
-    public void draw(Scene scene) {
+    public void draw(List<Renderable> renderables) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         throwIfError();
 
-        shader.enable();
-        shader.enableAttribute("position");
-
-        for (Renderable r : scene.getRenderables()) {
-            float x = (float) r.getPosition().getX();
-            float y = (float) r.getPosition().getY();
-            float z = (float) r.getPosition().getZ();
-            Vector3f objectPosition = new Vector3f(x, y, z);
-
-            shader.setUniform("model", getModelMatrix(objectPosition));
+        if (renderables.size() > 0) {
+            shader.enable();
+            shader.enableAttribute("vertex");
             shader.setUniform("view", getViewMatrix(camera));
             shader.setUniform("projection", getProjectionMatrix(camera));
 
-            drawObject(vao);
-        }
+            renderables.forEach(this::drawRenderable);
 
-        shader.disableAttribute("position");
-        shader.disable();
+            shader.disableAttribute("vertex");
+            shader.disable();
+        }
     }
 
-    private void drawObject(int vao) {
-        glBindVertexArray(vao);
-        throwIfError();
+    private void drawRenderable(Renderable renderable) {
+        Vector2f initialPosition = getTopLeftCoord(renderable.getPosition(), renderable.getMatrix());
+        renderable.getMatrix().forEach((matrixCoord, block) -> {
+            if (block == 1) {
+                Vector3f position = getBlockPosition(initialPosition, matrixCoord);
+//                float x = renderable.getPosition().x;
+//                float y = renderable.getPosition().y;
+//                Vector3f position = new Vector3f(x, y, 0);
+                shader.setUniform("model", getModelMatrix(position));
 
-        glDrawArrays(GL_TRIANGLES, 0, square.length);
-        throwIfError();
+                glBindVertexArray(blockVAO);
+                throwIfError();
+
+                glDrawArrays(GL_TRIANGLES, 0, 6);
+                throwIfError();
+            }
+        });
+    }
+
+    private Vector2f getTopLeftCoord(Vector2f position, Matrix<Integer> matrix) {
+        float x = position.x - (matrix.width() / 2);
+        float y = position.y + (matrix.height() / 2);
+        return new Vector2f(x, y);
+    }
+
+    private Vector3f getBlockPosition(Vector2f position, Vector2f matrixCoord) {
+        float x = (position.x + matrixCoord.x) * blockSize;
+        float y = (position.y - matrixCoord.y) * blockSize;
+        return new Vector3f(x, y, 0);
     }
 
     private FloatBuffer getModelMatrix(Vector3f position) {

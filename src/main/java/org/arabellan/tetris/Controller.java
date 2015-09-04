@@ -3,6 +3,7 @@ package org.arabellan.tetris;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+import org.arabellan.tetris.events.Event;
 
 import java.util.HashMap;
 import java.util.Map;

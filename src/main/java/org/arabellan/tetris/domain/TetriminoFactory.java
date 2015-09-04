@@ -4,6 +4,7 @@ import org.arabellan.common.Color;
 import org.arabellan.common.Coord;
 import org.arabellan.common.Matrix;
 import org.arabellan.tetris.domain.Tetrimino.Orientation;
+import org.joml.Vector2f;
 
 import java.util.Random;
 
@@ -16,7 +17,7 @@ public class TetriminoFactory {
     public Tetrimino getRandomTetrimino() {
         Type type = getRandomType();
         Color color = getColor(type);
-        Coord position = Coord.builder().x(11).y(0).build();
+        Vector2f position = new Vector2f(6, 0);
 
         return Tetrimino.builder()
                 .type(type)
@@ -32,11 +33,11 @@ public class TetriminoFactory {
         return types[randomType];
     }
 
-    public Tetrimino getMovedStub(Tetrimino tetrimino, Coord coord) {
+    public Tetrimino getMovedStub(Tetrimino tetrimino, Vector2f positionChange) {
         return Tetrimino.builder()
                 .type(tetrimino.getType())
                 .color(tetrimino.getColor())
-                .position(tetrimino.getPosition().translate(coord))
+                .position(tetrimino.getPosition().add(positionChange))
                 .orientation(tetrimino.getOrientation())
                 .build();
     }

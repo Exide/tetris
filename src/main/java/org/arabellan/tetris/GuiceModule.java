@@ -6,6 +6,7 @@ import com.google.inject.BindingAnnotation;
 import com.google.inject.Singleton;
 import org.arabellan.tetris.scenes.InGameScene;
 import org.arabellan.tetris.scenes.MainMenuScene;
+import org.arabellan.tetris.scenes.Scene;
 
 import java.lang.annotation.Retention;
 

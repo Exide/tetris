@@ -1,9 +1,13 @@
 package org.arabellan.tetris;
 
-import org.arabellan.common.Coord;
+import lombok.Builder;
+import lombok.Value;
 import org.arabellan.common.Matrix;
+import org.joml.Vector2f;
 
-public interface Renderable {
-    Matrix<Character> getRenderable();
-    Coord getPosition();
+@Value
+@Builder
+public class Renderable {
+    Vector2f position;
+    Matrix<Integer> matrix;
 }

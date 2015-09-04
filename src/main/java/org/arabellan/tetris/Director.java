@@ -4,9 +4,10 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.arabellan.tetris.Scene;
-import org.arabellan.tetris.SceneFactory;
+import org.arabellan.tetris.scenes.Scene;
+import org.arabellan.tetris.scenes.SceneFactory;
 import org.arabellan.tetris.events.ChangeSceneEvent;
 import org.arabellan.tetris.scenes.MainMenuScene;
 
@@ -22,6 +23,9 @@ public class Director {
     @Getter
     private Scene scene;
 
+    @Setter
+    private Class queuedScene;
+
     @Inject
     public Director(EventBus eventBus) {
         log.debug("Constructing");
@@ -30,11 +34,19 @@ public class Director {
 
     public void initialize() {
         log.debug("Initializing");
-        setScene(MainMenuScene.class);
+        setQueuedScene(MainMenuScene.class);
     }
 
     public void update() {
+        enableQueuedSceneIfNeeded();
         scene.update();
+    }
+
+    private void enableQueuedSceneIfNeeded() {
+        if (queuedScene != null) {
+            setScene(queuedScene);
+            queuedScene = null;
+        }
     }
 
     private void setScene(Class sceneClass) {
@@ -51,7 +63,7 @@ public class Director {
         @Subscribe
         public void listen(ChangeSceneEvent event) {
             log.debug("ChangeSceneEvent received");
-            setScene(event.getSceneClass());
+            setQueuedScene(event.getSceneClass());
         }
     }
 }

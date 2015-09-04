@@ -4,13 +4,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.arabellan.common.Color;
-import org.arabellan.common.Coord;
 import org.arabellan.common.Matrix;
 import org.arabellan.tetris.Renderable;
+import org.joml.Vector2f;
 
 @Builder
 @Getter
-public class Tetrimino implements Renderable {
+public class Tetrimino {
 
     public enum Type {I, J, L, O, S, T, Z}
 
@@ -20,28 +20,28 @@ public class Tetrimino implements Renderable {
     Type type;
 
     @Setter
-    Coord position;
+    Vector2f position;
 
     @Setter
     Orientation orientation;
 
-    public Matrix<Character> getRenderable() {
-        Matrix<Character> shape = getShape().replace(' ', null);
+    public Matrix<Integer> getMatrix() {
+        Matrix<Integer> shape = getShape();
         return correctForOrientation(shape);
     }
 
-    private Matrix<Character> correctForOrientation(Matrix<Character> shape) {
+    private Matrix<Integer> correctForOrientation(Matrix<Integer> shape) {
         for (int i = 0; i < orientation.ordinal(); ++i) {
             shape = rotateShape(shape);
         }
         return shape;
     }
 
-    private Matrix<Character> rotateShape(Matrix<Character> shape) {
-        Character[][] data = shape.getData();
+    private Matrix<Integer> rotateShape(Matrix<Integer> shape) {
+        Integer[][] data = shape.getData();
         final int M = data.length;
         final int N = data[0].length;
-        Character[][] output = new Character[N][M];
+        Integer[][] output = new Integer[N][M];
         for (int r = 0; r < M; r++) {
             for (int c = 0; c < N; c++) {
                 output[c][M - 1 - r] = data[r][c];
@@ -50,46 +50,46 @@ public class Tetrimino implements Renderable {
         return new Matrix<>(output);
     }
 
-    private Matrix<Character> getShape() {
+    private Matrix<Integer> getShape() {
         switch (type) {
             case I:
-                return new Matrix<>(new Character[][]{
-                        {'I'},
-                        {'I'},
-                        {'I'},
-                        {'I'}
+                return new Matrix<>(new Integer[][]{
+                        {1},
+                        {1},
+                        {1},
+                        {1}
                 });
             case J:
-                return new Matrix<>(new Character[][]{
-                        {' ', 'J'},
-                        {' ', 'J'},
-                        {'J', 'J'}
+                return new Matrix<>(new Integer[][]{
+                        {0, 1},
+                        {0, 1},
+                        {1, 1}
                 });
             case L:
-                return new Matrix<>(new Character[][]{
-                        {'L', ' '},
-                        {'L', ' '},
-                        {'L', 'L'}
+                return new Matrix<>(new Integer[][]{
+                        {1, 0},
+                        {1, 0},
+                        {1, 1}
                 });
             case O:
-                return new Matrix<>(new Character[][]{
-                        {'O', 'O'},
-                        {'O', 'O'}
+                return new Matrix<>(new Integer[][]{
+                        {1, 1},
+                        {1, 1}
                 });
             case S:
-                return new Matrix<>(new Character[][]{
-                        {' ', 'S', 'S'},
-                        {'S', 'S', ' '}
+                return new Matrix<>(new Integer[][]{
+                        {0, 1, 1},
+                        {1, 1, 0}
                 });
             case T:
-                return new Matrix<>(new Character[][]{
-                        {' ', 'T', ' '},
-                        {'T', 'T', 'T'}
+                return new Matrix<>(new Integer[][]{
+                        {0, 1, 0},
+                        {1, 1, 1}
                 });
             case Z:
-                return new Matrix<>(new Character[][]{
-                        {'Z', 'Z', ' '},
-                        {' ', 'Z', 'Z'}
+                return new Matrix<>(new Integer[][]{
+                        {1, 1, 0},
+                        {0, 1, 1}
                 });
             default:
                 throw new RuntimeException("Unknown Tetrimino type!");

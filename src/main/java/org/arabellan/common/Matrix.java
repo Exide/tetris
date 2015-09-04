@@ -1,6 +1,11 @@
 package org.arabellan.common;
 
 import lombok.Getter;
+import org.joml.Vector2f;
+
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class Matrix<T> {
 
@@ -12,13 +17,12 @@ public class Matrix<T> {
     }
 
     public void add(Matrix<T> matrix) {
-        Coord noOffset = Coord.builder().build();
-        add(matrix, noOffset);
+        add(matrix, new Vector2f());
     }
 
-    public void add(Matrix<T> matrix, Coord offset) {
-        int x = ((int) offset.getX());
-        int y = ((int) offset.getY());
+    public void add(Matrix<T> matrix, Vector2f offset) {
+        int x = ((int) offset.x);
+        int y = ((int) offset.y);
         T[][] newData = matrix.getData();
 
         for (int row = 0; row < newData.length; ++row) {
@@ -26,22 +30,6 @@ public class Matrix<T> {
                 data[row + y][column + x] = newData[row][column];
             }
         }
-    }
-
-    public boolean isOverlapping(Matrix<T> matrix, Coord offset) {
-        T[][] otherData = matrix.getData();
-        int x = (int) offset.getX();
-        int y = (int) offset.getY();
-
-        for (int row = 0; row < otherData.length; ++row) {
-            for (int column = 0; column < otherData[row].length; ++column) {
-                if (data[row + y][column + x] != null && otherData[row][column] != null) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
     public Matrix<T> replace(T a, T b) {
@@ -67,5 +55,33 @@ public class Matrix<T> {
         }
 
         return sb.toString();
+    }
+
+    public int count(T t) {
+        int count = 0;
+        for (int row = 0; row < data.length; ++row) {
+            for (int column = 0; column < data[row].length; ++column) {
+                if (data[row][column] == t) {
+                    ++count;
+                }
+            }
+        }
+        return count;
+    }
+
+    public int height() {
+        return data.length;
+    }
+
+    public int width() {
+        return data[0].length;
+    }
+
+    public void forEach(BiConsumer<Vector2f, T> consumer) {
+        for (int row = 0; row < data.length; ++row) {
+            for (int column = 0; column < data[row].length; ++column) {
+                consumer.accept(new Vector2f(column, row), data[row][column]);
+            }
+        }
     }
 }

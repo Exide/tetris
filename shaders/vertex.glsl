@@ -3,9 +3,8 @@
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-in vec2 position;
+in vec2 vertex;
 
 void main() {
-    vec4 vertex = vec4(position, 0, 1);
-    gl_Position = projection * view * model * vertex;
+    gl_Position = projection * view * model * vec4(vertex, 0, 1);
 }
