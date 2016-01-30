@@ -1,11 +1,12 @@
 package org.arabellan.lwjgl;
 
+import org.lwjgl.opengl.GLUtil;
+
 import static org.lwjgl.opengl.GL11.glGetError;
-import static org.lwjgl.opengl.GLContext.translateGLErrorString;
 
 public class GLException extends RuntimeException {
     GLException(int errorCode) {
-        super(String.format("(%s) %s", errorCode, translateGLErrorString(errorCode)));
+        super(String.format("(%s) %s", errorCode, GLUtil.getErrorString(errorCode)));
     }
 
     public static void throwIfError() {

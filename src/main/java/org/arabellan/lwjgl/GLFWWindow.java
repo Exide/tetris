@@ -3,9 +3,7 @@ package org.arabellan.lwjgl;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.Inject;
 import org.arabellan.tetris.events.QuitEvent;
-import org.lwjgl.glfw.GLFWvidmode;
-
-import java.nio.ByteBuffer;
+import org.lwjgl.glfw.GLFWVidMode;
 
 import static org.lwjgl.glfw.GLFW.GLFW_CLIENT_API;
 import static org.lwjgl.glfw.GLFW.GLFW_CONTEXT_VERSION_MAJOR;
@@ -30,7 +28,7 @@ import static org.lwjgl.glfw.GLFW.glfwWindowShouldClose;
 import static org.lwjgl.opengl.GL11.GL_TRUE;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-public class Window {
+public class GLFWWindow {
 
     private static final String WINDOW_TITLE = "Tetris";
 
@@ -38,7 +36,7 @@ public class Window {
     private long window;
 
     @Inject
-    Window(EventBus eventBus) {
+    public GLFWWindow(EventBus eventBus) {
         this.eventBus = eventBus;
     }
 
@@ -58,11 +56,11 @@ public class Window {
         }
 
         // Get the resolution of the primary monitor
-        ByteBuffer vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
         // Center our window
-        int x = (GLFWvidmode.width(vidmode) - width) / 2;
-        int y = (GLFWvidmode.height(vidmode) - height) / 2;
+        int x = (vidmode.width() - width) / 2;
+        int y = (vidmode.height() - height) / 2;
         glfwSetWindowPos(window, x, y);
 
         // Make the OpenGL context current
@@ -86,5 +84,9 @@ public class Window {
 
     public void shutdown() {
         glfwDestroyWindow(window);
+    }
+
+    public long getHandle() {
+        return window;
     }
 }

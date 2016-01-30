@@ -3,7 +3,9 @@ package org.arabellan.tetris;
 import com.google.common.eventbus.EventBus;
 import com.google.inject.AbstractModule;
 import com.google.inject.BindingAnnotation;
+import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import org.arabellan.lwjgl.GLFWWindow;
 import org.arabellan.tetris.scenes.InGameScene;
 import org.arabellan.tetris.scenes.MainMenuScene;
 import org.arabellan.tetris.scenes.Scene;
@@ -27,4 +29,16 @@ public class GuiceModule extends AbstractModule {
     @BindingAnnotation
     @Retention(RUNTIME)
     public @interface InGame {}
+
+    @Provides
+    @Singleton
+    public GLFWWindow provideWindow(EventBus eventBus) {
+        return new GLFWWindow(eventBus);
+    }
+
+    @Provides
+    @Singleton
+    public Controller provideController(EventBus eventBus) {
+        return new Controller(eventBus);
+    }
 }

@@ -21,7 +21,6 @@ import org.joml.Vector2f;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -30,12 +29,12 @@ import java.util.List;
 @Slf4j
 public class InGameScene implements Scene {
 
-    private static final int INITIAL_TIMESTEP_IN_MS = 1750;
+    private static final int GAMESPEED_START_IN_MS = 1500;
     private static final int GAMESPEED_INCREASE_IN_MS = 50;
 
-    private int currentLevel;
-    private int currentTimestep;
     private long currentPoints;
+    private int currentLevel;
+    private int gameSpeed;
     private Instant lastUpdate = Instant.now();
 
     @Inject
@@ -58,9 +57,9 @@ public class InGameScene implements Scene {
         log.debug("Initializing");
         initializeInput();
         initializeGameObjects();
-        currentLevel = 1;
-        currentTimestep = INITIAL_TIMESTEP_IN_MS;
         currentPoints = 0;
+        currentLevel = 1;
+        gameSpeed = GAMESPEED_START_IN_MS;
     }
 
     private void initializeInput() {
@@ -74,7 +73,6 @@ public class InGameScene implements Scene {
     }
 
     private void initializeGameObjects() {
-        well.initialize();
         activeTetrimino = factory.getRandomTetrimino();
         nextTetrimino = factory.getRandomTetrimino();
     }
@@ -86,19 +84,17 @@ public class InGameScene implements Scene {
                 .position(convertWellToScene(activeTetrimino.getPosition()))
                 .build();
 
-//        Renderable wellRenderable = Renderable.builder()
-//                .matrix(well.getMatrix())
-//                .position(new Vector2f())
-//                .build();
+        Renderable wellRenderable = Renderable.builder()
+                .matrix(well.getMatrix())
+                .position(new Vector2f())
+                .build();
 
-//        return Arrays.asList(wellRenderable, tetriminoRenderable);
-//        return Arrays.asList(well.getRenderable(), tetriminoRenderable);
-        return Collections.singletonList(tetriminoRenderable);
+        return Arrays.asList(wellRenderable, tetriminoRenderable);
     }
 
     private Vector2f convertWellToScene(Vector2f position) {
-        int width = well.getRenderable().getMatrix().width();
-        int height = well.getRenderable().getMatrix().height();
+        int width = well.getMatrix().width();
+        int height = well.getMatrix().height();
         float x = position.x - (width / 2);
         float y = position.y + (height / 2);
         return new Vector2f(x, y);
@@ -107,7 +103,7 @@ public class InGameScene implements Scene {
     @Override
     public void update() {
         long delta = Duration.between(lastUpdate, Instant.now()).toMillis();
-        if (delta >= currentTimestep) {
+        if (delta >= gameSpeed) {
             log.debug(String.format("Tick! (%sms delta)", delta));
             if (shouldIncreaseLevel()) increaseLevel();
             updateActiveTetrimino();
@@ -116,7 +112,6 @@ public class InGameScene implements Scene {
     }
 
     private boolean shouldIncreaseLevel() {
-        ++currentPoints; // debug hack until we can clear blocks
         int pointsRequiredMod = 2;
         int pointsNeededForNextLevel = currentLevel * pointsRequiredMod * currentLevel;
         return currentPoints > pointsNeededForNextLevel;
@@ -124,22 +119,24 @@ public class InGameScene implements Scene {
 
     private void increaseLevel() {
         ++currentLevel;
-        currentTimestep -= GAMESPEED_INCREASE_IN_MS;
-        double currentTimestepInSeconds = ((double) currentTimestep) / 1000;
-        log.debug(String.format("Level increased to %s (%ss per tick)", currentLevel, currentTimestepInSeconds));
+        gameSpeed -= GAMESPEED_INCREASE_IN_MS;
+        double gameSpeedInSeconds = ((double) gameSpeed) / 1000;
+        log.debug(String.format("Level increased to %s (%ss per tick)", currentLevel, gameSpeedInSeconds));
     }
 
     private void updateActiveTetrimino() {
         try {
-            moveActiveTetrimino(new Vector2f(0, 1));
+            moveActiveTetrimino(new Vector2f(0, -1));
         } catch (InvalidMoveException e) {
             finalizeActiveTetrimino();
         }
     }
 
     private void finalizeActiveTetrimino() {
+        log.debug("Finalize active tetrimino");
         try {
             well.add(activeTetrimino);
+            currentPoints *= 2; // debug hack until we can clear blocks
             activateNextTetrimino();
         } catch (InvalidMoveException e) {
             gameOver();
@@ -152,15 +149,20 @@ public class InGameScene implements Scene {
     }
 
     private void activateNextTetrimino() {
-        activeTetrimino = nextTetrimino;
-        nextTetrimino = factory.getRandomTetrimino();
+        log.debug("Activating next tetrimino");
+        if (well.isPositionAllowed(nextTetrimino)) {
+            activeTetrimino = nextTetrimino;
+            nextTetrimino = factory.getRandomTetrimino();
+        } else {
+            gameOver();
+        }
     }
 
     public void moveActiveTetrimino(Vector2f nextPosition) {
         log.debug("Moving active tetrimino");
-        Tetrimino stub = factory.getMovedStub(activeTetrimino, nextPosition);
-        if (well.isPositionAllowed(stub)) {
-            activeTetrimino.setPosition(stub.getPosition());
+        Tetrimino movedStub = factory.getMovedStub(activeTetrimino, nextPosition);
+        if (well.isPositionAllowed(movedStub)) {
+            activeTetrimino.setPosition(movedStub.getPosition());
         } else {
             throw new InvalidMoveException();
         }
@@ -177,10 +179,10 @@ public class InGameScene implements Scene {
     public void dropActiveTetrimino() {
         log.debug("Dropping tetrimino");
         Vector2f nextPosition = new Vector2f(0, -1);
-        Tetrimino stub = factory.getMovedStub(activeTetrimino, nextPosition);
-        while (well.isPositionAllowed(stub)) {
-            activeTetrimino.setPosition(stub.getPosition());
-            stub = factory.getMovedStub(activeTetrimino, nextPosition);
+        Tetrimino movedStub = factory.getMovedStub(activeTetrimino, nextPosition);
+        while (well.isPositionAllowed(movedStub)) {
+            activeTetrimino.setPosition(movedStub.getPosition());
+            movedStub = factory.getMovedStub(activeTetrimino, nextPosition);
         }
     }
 

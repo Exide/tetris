@@ -2,11 +2,11 @@ package org.arabellan.lwjgl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.arabellan.common.Platform;
+import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
 import java.io.File;
 
-import static org.lwjgl.glfw.Callbacks.errorCallbackPrint;
 import static org.lwjgl.glfw.GLFW.glfwInit;
 import static org.lwjgl.glfw.GLFW.glfwSetErrorCallback;
 import static org.lwjgl.glfw.GLFW.glfwTerminate;
@@ -18,7 +18,7 @@ public class LWJGLWrapper {
 
     public void initialize() {
         loadLWJGLNativeLibs();
-        log.info("LWJGL version: " + org.lwjgl.Sys.getVersion());
+        log.info("LWJGL version: " + Version.getVersion());
 
         glfwSetErrorCallback(createErrorLogger());
         if (glfwInit() != GL_TRUE) {

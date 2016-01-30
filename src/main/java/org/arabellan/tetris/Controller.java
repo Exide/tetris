@@ -1,7 +1,6 @@
 package org.arabellan.tetris;
 
 import com.google.common.eventbus.EventBus;
-import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.arabellan.tetris.events.Event;
 
@@ -14,9 +13,12 @@ import java.util.Map;
 @Slf4j
 public class Controller {
 
-    @Inject
     private EventBus eventBus;
     private Map<Key, Event> bindings = new HashMap<>();
+
+    public Controller(EventBus eventBus) {
+        this.eventBus = eventBus;
+    }
 
     public void bind(Key key, Event event) {
         log.debug("Binding " + key + " to " + event.getClass().getSimpleName());
@@ -34,5 +36,5 @@ public class Controller {
         bindings.clear();
     }
 
-    public enum Key {ESCAPE, LEFT, RIGHT, UP, DOWN, SPACE}
+    public enum Key {UNKNOWN, ESCAPE, LEFT, RIGHT, UP, DOWN, SPACE}
 }

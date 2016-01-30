@@ -6,10 +6,10 @@ import com.google.inject.Inject;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.arabellan.tetris.scenes.Scene;
-import org.arabellan.tetris.scenes.SceneFactory;
 import org.arabellan.tetris.events.ChangeSceneEvent;
 import org.arabellan.tetris.scenes.MainMenuScene;
+import org.arabellan.tetris.scenes.Scene;
+import org.arabellan.tetris.scenes.SceneFactory;
 
 /**
  * This class is responsible for the current scene.

@@ -5,8 +5,6 @@ import com.google.inject.Injector;
 import lombok.extern.slf4j.Slf4j;
 import org.arabellan.lwjgl.LWJGLWrapper;
 
-import static org.lwjgl.glfw.Callbacks.errorCallbackPrint;
-
 @Slf4j
 public class Main {
 

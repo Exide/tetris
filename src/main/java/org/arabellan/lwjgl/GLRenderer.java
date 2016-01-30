@@ -7,7 +7,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GLContext;
+import org.lwjgl.opengl.GL;
 
 import java.nio.FloatBuffer;
 import java.util.Arrays;
@@ -56,10 +56,26 @@ public class GLRenderer {
 
     public void initialize(int width, int height) {
         createGLContext();
-        initializeGLState(width, height);
+        initializeGLState();
         blockVAO = loadBlockMesh();
         shader = createDefaultShader();
         camera = new Camera(width, height);
+    }
+
+    private void createGLContext() {
+        GL.createCapabilities();
+        throwIfError();
+
+        log.info("GL version: " + glGetString(GL_VERSION));
+        throwIfError();
+
+        log.info("GLSL version: " + glGetString(GL_SHADING_LANGUAGE_VERSION));
+        throwIfError();
+    }
+
+    private void initializeGLState() {
+        glClearColor(0, 0, 0, 0);
+        throwIfError();
     }
 
     private int loadBlockMesh() {
@@ -104,22 +120,6 @@ public class GLRenderer {
         return id;
     }
 
-    private void createGLContext() {
-        GLContext.createFromCurrent();
-        throwIfError();
-
-        log.info("GL version: " + glGetString(GL_VERSION));
-        throwIfError();
-
-        log.info("GLSL version: " + glGetString(GL_SHADING_LANGUAGE_VERSION));
-        throwIfError();
-    }
-
-    private void initializeGLState(int width, int height) {
-        glClearColor(0, 0, 0, 0);
-        throwIfError();
-    }
-
     private ShaderProgram createDefaultShader() {
         Shader vertex = new Shader("shaders/vertex.glsl", GL_VERTEX_SHADER);
         Shader fragment = new Shader("shaders/fragment.glsl", GL_FRAGMENT_SHADER);
@@ -148,9 +148,6 @@ public class GLRenderer {
         renderable.getMatrix().forEach((matrixCoord, block) -> {
             if (block == 1) {
                 Vector3f position = getBlockPosition(initialPosition, matrixCoord);
-//                float x = renderable.getPosition().x;
-//                float y = renderable.getPosition().y;
-//                Vector3f position = new Vector3f(x, y, 0);
                 shader.setUniform("model", getModelMatrix(position));
 
                 glBindVertexArray(blockVAO);

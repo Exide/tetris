@@ -1,9 +1,7 @@
 package org.arabellan.tetris.domain;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.arabellan.common.Matrix;
-import org.arabellan.tetris.Renderable;
 import org.joml.Vector2f;
 
 @Slf4j
@@ -33,28 +31,23 @@ public class Well {
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
     });
 
-    @Getter
-    Renderable renderable;
-
-    public void initialize() {
-        Vector2f position = new Vector2f();
-        renderable = Renderable.builder()
-                .position(position)
-                .matrix(grid)
-                .build();
+    public Matrix<Integer> getMatrix() {
+        return grid;
     }
 
-    public void add(Tetrimino tetrimino) throws InvalidMoveException {
+    public void add(Tetrimino tetrimino) {
         log.debug("Adding " + tetrimino.getType());
-        if (isPositionAllowed(tetrimino)) {
-            grid.add(tetrimino.getMatrix(), tetrimino.getPosition());
-        } else {
-            throw new InvalidMoveException();
-        }
+        Vector2f position = invertYAxis(tetrimino.getPosition());
+        grid.add(tetrimino.getMatrix(), position);
     }
 
     public boolean isPositionAllowed(Tetrimino tetrimino) {
-        return !isOverlapping(tetrimino.getMatrix(), tetrimino.getPosition());
+        Vector2f position = invertYAxis(tetrimino.getPosition());
+        return !isOverlapping(tetrimino.getMatrix(), position);
+    }
+
+    private Vector2f invertYAxis(Vector2f position) {
+        return new Vector2f(position.x, -position.y);
     }
 
     public boolean isOverlapping(Matrix<Integer> matrix, Vector2f offset) {

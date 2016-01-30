@@ -4,8 +4,9 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+import org.arabellan.lwjgl.GLFWInput;
 import org.arabellan.tetris.events.QuitEvent;
-import org.arabellan.lwjgl.Window;
+import org.arabellan.lwjgl.GLFWWindow;
 import org.arabellan.lwjgl.GLRenderer;
 
 /**
@@ -23,10 +24,13 @@ public class Game {
     private Director director;
 
     @Inject
+    private GLFWInput input;
+
+    @Inject
     private GLRenderer renderer;
 
     @Inject
-    private Window window;
+    private GLFWWindow window;
 
     @Inject
     public Game(EventBus eventBus) {
@@ -40,6 +44,7 @@ public class Game {
             director.update();
             renderer.draw(director.getScene().getRenderables());
             window.update();
+            input.update();
         }
         shutdown();
     }
@@ -48,9 +53,11 @@ public class Game {
         window.initialize(WIDTH, HEIGHT);
         renderer.initialize(WIDTH, HEIGHT);
         director.initialize();
+        input.initialize();
     }
 
     private void shutdown() {
+        input.shutdown();
         director.shutdown();
         window.shutdown();
     }
