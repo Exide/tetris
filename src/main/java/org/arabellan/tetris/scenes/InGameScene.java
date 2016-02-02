@@ -84,7 +84,7 @@ public class InGameScene implements Scene {
                 .matrix(activeTetrimino.getMatrix())
                 .position(convertWellToScene(activeTetrimino.getPosition()))
                 .build();
-Refa
+
         Renderable wellRenderable = Renderable.builder()
                 .matrix(well.getMatrix())
                 .position(new Vector2f())
