@@ -2,10 +2,9 @@ package org.arabellan.common;
 
 import lombok.Getter;
 import org.joml.Vector2f;
+import org.joml.Vector2i;
 
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class Matrix<T> {
 
@@ -30,6 +29,10 @@ public class Matrix<T> {
                 data[row + y][column + x] = newData[row][column];
             }
         }
+    }
+
+    public void add(T item, Vector2i position) {
+        data[position.x][position.y] = item;
     }
 
     public Matrix<T> replace(T a, T b) {
