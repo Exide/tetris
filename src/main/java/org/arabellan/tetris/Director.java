@@ -38,11 +38,11 @@ public class Director {
     }
 
     public void update() {
-        enableQueuedSceneIfNeeded();
+        enableQueuedSceneIfAvailable();
         scene.update();
     }
 
-    private void enableQueuedSceneIfNeeded() {
+    private void enableQueuedSceneIfAvailable() {
         if (queuedScene != null) {
             setScene(queuedScene);
             queuedScene = null;

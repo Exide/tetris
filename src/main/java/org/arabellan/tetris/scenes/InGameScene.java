@@ -22,6 +22,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class is responsible for the logic during the game.
@@ -29,12 +30,12 @@ import java.util.List;
 @Slf4j
 public class InGameScene implements Scene {
 
-    private static final int GAMESPEED_START_IN_MS = 1500;
-    private static final int GAMESPEED_INCREASE_IN_MS = 50;
+    private static final long STARTING_SPEED = TimeUnit.MILLISECONDS.toMillis(1500);
+    private static final long SPEED_CHANGE = TimeUnit.MILLISECONDS.toMillis(50);
 
     private long currentPoints;
     private int currentLevel;
-    private int gameSpeed;
+    private long gameSpeed;
     private Instant lastUpdate = Instant.now();
 
     @Inject
@@ -59,7 +60,7 @@ public class InGameScene implements Scene {
         initializeGameObjects();
         currentPoints = 0;
         currentLevel = 1;
-        gameSpeed = GAMESPEED_START_IN_MS;
+        gameSpeed = STARTING_SPEED;
     }
 
     private void initializeInput() {
@@ -83,7 +84,7 @@ public class InGameScene implements Scene {
                 .matrix(activeTetrimino.getMatrix())
                 .position(convertWellToScene(activeTetrimino.getPosition()))
                 .build();
-
+Refa
         Renderable wellRenderable = Renderable.builder()
                 .matrix(well.getMatrix())
                 .position(new Vector2f())
@@ -119,7 +120,7 @@ public class InGameScene implements Scene {
 
     private void increaseLevel() {
         ++currentLevel;
-        gameSpeed -= GAMESPEED_INCREASE_IN_MS;
+        gameSpeed -= SPEED_CHANGE;
         double gameSpeedInSeconds = ((double) gameSpeed) / 1000;
         log.debug(String.format("Level increased to %s (%ss per tick)", currentLevel, gameSpeedInSeconds));
     }

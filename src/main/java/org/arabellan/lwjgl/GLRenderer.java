@@ -130,33 +130,39 @@ public class GLRenderer {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         throwIfError();
 
-        if (renderables.size() > 0) {
-            shader.enable();
-            shader.enableAttribute("vertex");
-            shader.setUniform("view", getViewMatrix(camera));
-            shader.setUniform("projection", getProjectionMatrix(camera));
+        drawRenderables(renderables);
+    }
 
-            renderables.forEach(this::drawRenderable);
+    private void drawRenderables(List<Renderable> renderables) {
+        if (renderables.isEmpty()) return;
 
-            shader.disableAttribute("vertex");
-            shader.disable();
-        }
+        shader.enable();
+        shader.enableAttribute("vertex");
+        shader.setUniform("view", getViewMatrix(camera));
+        shader.setUniform("projection", getProjectionMatrix(camera));
+        renderables.forEach(this::drawRenderable);
+        shader.disableAttribute("vertex");
+        shader.disable();
     }
 
     private void drawRenderable(Renderable renderable) {
-        Vector2f initialPosition = getTopLeftCoord(renderable.getPosition(), renderable.getMatrix());
+        Vector2f renderablePosition = getTopLeftCoord(renderable.getPosition(), renderable.getMatrix());
         renderable.getMatrix().forEach((matrixCoord, block) -> {
             if (block == 1) {
-                Vector3f position = getBlockPosition(initialPosition, matrixCoord);
-                shader.setUniform("model", getModelMatrix(position));
-
-                glBindVertexArray(blockVAO);
-                throwIfError();
-
-                glDrawArrays(GL_TRIANGLES, 0, 6);
-                throwIfError();
+                Vector3f screenPosition = getScreenPosition(renderablePosition, matrixCoord);
+                renderBlock(screenPosition);
             }
         });
+    }
+
+    private void renderBlock(Vector3f position) {
+        shader.setUniform("model", getModelMatrix(position));
+
+        glBindVertexArray(blockVAO);
+        throwIfError();
+
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        throwIfError();
     }
 
     private Vector2f getTopLeftCoord(Vector2f position, Matrix<Integer> matrix) {
@@ -165,7 +171,7 @@ public class GLRenderer {
         return new Vector2f(x, y);
     }
 
-    private Vector3f getBlockPosition(Vector2f position, Vector2f matrixCoord) {
+    private Vector3f getScreenPosition(Vector2f position, Vector2f matrixCoord) {
         float x = (position.x + matrixCoord.x) * blockSize;
         float y = (position.y - matrixCoord.y) * blockSize;
         return new Vector3f(x, y, 0);
