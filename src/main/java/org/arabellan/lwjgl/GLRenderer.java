@@ -3,6 +3,7 @@ package org.arabellan.lwjgl;
 import lombok.extern.slf4j.Slf4j;
 import org.arabellan.common.Matrix;
 import org.arabellan.tetris.Renderable;
+import org.arabellan.tetris.scenes.Scene;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -130,10 +131,6 @@ public class GLRenderer {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         throwIfError();
 
-        drawRenderables(renderables);
-    }
-
-    private void drawRenderables(List<Renderable> renderables) {
         if (renderables.isEmpty()) return;
 
         shader.enable();
