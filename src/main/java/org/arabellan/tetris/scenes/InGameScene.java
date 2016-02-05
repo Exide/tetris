@@ -99,7 +99,7 @@ public class InGameScene implements Scene {
         float x = position.x - ((float)width / 2);
         float y = position.y + ((float)height / 2);
         return new Vector2f(x, y);
-    }Fi
+    }
 
     @Override
     public void update() {
