@@ -67,10 +67,11 @@ public class InGameScene implements Scene {
         inputListener = new InputListener();
         eventBus.register(inputListener);
         input.bind(Key.ESCAPE, new QuitEvent());
-        input.bind(Key.LEFT, new MoveEvent(-1));
-        input.bind(Key.RIGHT, new MoveEvent(1));
+        input.bind(Key.SPACE, new DropEvent());
         input.bind(Key.UP, new RotateEvent());
-        input.bind(Key.DOWN, new DropEvent());
+        input.bind(Key.DOWN, new MoveEvent(MoveEvent.Direction.Down));
+        input.bind(Key.LEFT, new MoveEvent(MoveEvent.Direction.Left));
+        input.bind(Key.RIGHT, new MoveEvent(MoveEvent.Direction.Right));
     }
 
     private void initializeGameObjects() {
@@ -96,8 +97,8 @@ public class InGameScene implements Scene {
     private Vector2f convertWellToScene(Vector2f position) {
         int width = well.getMatrix().width();
         int height = well.getMatrix().height();
-        float x = position.x - ((float)width / 2);
-        float y = position.y + ((float)height / 2);
+        float x = position.x - ((float) width / 2);
+        float y = position.y + ((float) height / 2);
         return new Vector2f(x, y);
     }
 
@@ -198,13 +199,14 @@ public class InGameScene implements Scene {
         @Subscribe
         public void listenForMove(MoveEvent event) {
             log.debug("MoveEvent received");
-
-            if (event.isLeft()) {
+            if (event.getDirection() == MoveEvent.Direction.Left) {
                 moveActiveTetrimino(new Vector2f(-1, 0));
-            }
-
-            if (event.isRight()) {
+            } else if (event.getDirection() == MoveEvent.Direction.Right) {
                 moveActiveTetrimino(new Vector2f(1, 0));
+            } else if (event.getDirection() == MoveEvent.Direction.Down) {
+                moveActiveTetrimino(new Vector2f(0, -1));
+            } else {
+                log.warn("Unknown move event: " + event.getDirection().name());
             }
         }
 
