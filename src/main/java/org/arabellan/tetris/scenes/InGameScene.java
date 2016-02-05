@@ -87,7 +87,7 @@ public class InGameScene implements Scene {
 
         Renderable wellRenderable = Renderable.builder()
                 .matrix(well.getMatrix())
-                .position(new Vector2f())
+                .position(new Vector2f(-0.5f, 0f))
                 .build();
 
         return Arrays.asList(wellRenderable, tetriminoRenderable);
