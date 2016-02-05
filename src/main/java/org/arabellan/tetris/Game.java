@@ -42,7 +42,7 @@ public class Game {
         initialize();
         while (isRunning) {
             director.update();
-            renderer.draw(director.getScene().getRenderables());
+            renderer.draw(director.getScene());
             window.update();
             input.update();
         }

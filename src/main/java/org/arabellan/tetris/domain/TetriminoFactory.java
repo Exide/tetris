@@ -1,8 +1,6 @@
 package org.arabellan.tetris.domain;
 
 import org.arabellan.common.Color;
-import org.arabellan.common.Coord;
-import org.arabellan.common.Matrix;
 import org.arabellan.tetris.domain.Tetrimino.Orientation;
 import org.joml.Vector2f;
 

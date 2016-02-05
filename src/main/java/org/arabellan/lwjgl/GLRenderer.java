@@ -12,7 +12,6 @@ import org.lwjgl.opengl.GL;
 
 import java.nio.FloatBuffer;
 import java.util.Arrays;
-import java.util.List;
 
 import static org.arabellan.lwjgl.GLException.throwIfError;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
@@ -127,27 +126,27 @@ public class GLRenderer {
         return new ShaderProgram(Arrays.asList(vertex, fragment));
     }
 
-    public void draw(List<Renderable> renderables) {
+    public void draw(Scene scene) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         throwIfError();
 
-        if (renderables.isEmpty()) return;
+        if (scene.getRenderables().isEmpty()) return;
 
         shader.enable();
         shader.enableAttribute("vertex");
         shader.setUniform("view", getViewMatrix(camera));
         shader.setUniform("projection", getProjectionMatrix(camera));
-        renderables.forEach(this::drawRenderable);
+        scene.getRenderables().forEach(this::drawRenderable);
         shader.disableAttribute("vertex");
         shader.disable();
     }
 
     private void drawRenderable(Renderable renderable) {
-        Vector2f renderablePosition = getTopLeftCoord(renderable.getPosition(), renderable.getMatrix());
+        Vector2f renderablePosition = getRenderableScreenPosition(renderable.getPosition(), renderable.getMatrix());
         renderable.getMatrix().forEach((matrixCoord, block) -> {
             if (block == 1) {
-                Vector3f screenPosition = getScreenPosition(renderablePosition, matrixCoord);
-                renderBlock(screenPosition);
+                Vector3f blockPosition = getBlockScreenPosition(renderablePosition, matrixCoord);
+                renderBlock(blockPosition);
             }
         });
     }
@@ -162,13 +161,13 @@ public class GLRenderer {
         throwIfError();
     }
 
-    private Vector2f getTopLeftCoord(Vector2f position, Matrix<Integer> matrix) {
-        float x = position.x - (matrix.width() / 2);
-        float y = position.y + (matrix.height() / 2);
+    private Vector2f getRenderableScreenPosition(Vector2f position, Matrix<Integer> matrix) {
+        float x = position.x - ((float)matrix.width() / 2);
+        float y = position.y + ((float)matrix.height() / 2);
         return new Vector2f(x, y);
     }
 
-    private Vector3f getScreenPosition(Vector2f position, Vector2f matrixCoord) {
+    private Vector3f getBlockScreenPosition(Vector2f position, Vector2f matrixCoord) {
         float x = (position.x + matrixCoord.x) * blockSize;
         float y = (position.y - matrixCoord.y) * blockSize;
         return new Vector3f(x, y, 0);

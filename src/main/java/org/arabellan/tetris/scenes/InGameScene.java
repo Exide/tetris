@@ -96,10 +96,10 @@ public class InGameScene implements Scene {
     private Vector2f convertWellToScene(Vector2f position) {
         int width = well.getMatrix().width();
         int height = well.getMatrix().height();
-        float x = position.x - (width / 2);
-        float y = position.y + (height / 2);
+        float x = position.x - ((float)width / 2);
+        float y = position.y + ((float)height / 2);
         return new Vector2f(x, y);
-    }
+    }Fi
 
     @Override
     public void update() {
