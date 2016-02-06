@@ -32,7 +32,7 @@ public class InGameScene implements Scene {
 
     private static final long STARTING_SPEED = TimeUnit.MILLISECONDS.toMillis(1500);
     private static final long SPEED_CHANGE = TimeUnit.MILLISECONDS.toMillis(100);
-    private static final int LINES_NEEDED_TO_LEVEL = 1;
+    private static final int LINES_NEEDED_MULTIPLIER = 10;
     private static final int POINTS_PER_LINE = 100;
 
     private int totalLinesCleared;
@@ -120,7 +120,7 @@ public class InGameScene implements Scene {
     }
 
     private void increaseLevelIfNeeded() {
-        int linesNeededForNextLevel = currentLevel * LINES_NEEDED_TO_LEVEL;
+        int linesNeededForNextLevel = currentLevel * LINES_NEEDED_MULTIPLIER;
         if (totalLinesCleared >= linesNeededForNextLevel) {
             increaseLevel();
         }
