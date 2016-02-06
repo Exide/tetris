@@ -1,13 +1,12 @@
 package org.arabellan.tetris.domain;
 
 import lombok.extern.slf4j.Slf4j;
-import org.arabellan.common.Matrix;
 import org.joml.Vector2f;
 
 @Slf4j
 public class Well {
 
-    Matrix<Integer> grid = new Matrix<>(new Integer[][]{
+    BlockMatrix grid = new BlockMatrix(new Integer[][]{
             {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
             {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
             {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
@@ -31,14 +30,13 @@ public class Well {
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
     });
 
-    public Matrix<Integer> getMatrix() {
+    public BlockMatrix getMatrix() {
         return grid;
     }
 
     public void add(Tetrimino tetrimino) {
         log.debug("Adding " + tetrimino.getType());
-        Vector2f position = invertYAxis(tetrimino.getPosition());
-        grid.add(tetrimino.getMatrix(), position);
+        grid.add(tetrimino.getMatrix(), tetrimino.getPosition());
     }
 
     public boolean isPositionAllowed(Tetrimino tetrimino) {
@@ -50,7 +48,7 @@ public class Well {
         return new Vector2f(position.x, -position.y);
     }
 
-    public boolean isOverlapping(Matrix<Integer> matrix, Vector2f offset) {
+    public boolean isOverlapping(BlockMatrix matrix, Vector2f offset) {
         int x = (int) offset.x;
         int y = (int) offset.y;
 

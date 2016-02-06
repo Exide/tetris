@@ -1,8 +1,8 @@
 package org.arabellan.lwjgl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.arabellan.common.Matrix;
 import org.arabellan.tetris.Renderable;
+import org.arabellan.tetris.domain.BlockMatrix;
 import org.arabellan.tetris.scenes.Scene;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
@@ -161,9 +161,9 @@ public class GLRenderer {
         throwIfError();
     }
 
-    private Vector2f getRenderableScreenPosition(Vector2f position, Matrix<Integer> matrix) {
-        float x = position.x - ((float)matrix.width() / 2);
-        float y = position.y + ((float)matrix.height() / 2);
+    private Vector2f getRenderableScreenPosition(Vector2f position, BlockMatrix matrix) {
+        float x = position.x - ((float) matrix.width() / 2);
+        float y = position.y + ((float) matrix.height() / 2);
         return new Vector2f(x, y);
     }
 

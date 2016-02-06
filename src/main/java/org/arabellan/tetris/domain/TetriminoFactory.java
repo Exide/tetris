@@ -15,7 +15,7 @@ public class TetriminoFactory {
     public Tetrimino getRandomTetrimino() {
         Type type = getRandomType();
         Color color = getColor(type);
-        Vector2f position = new Vector2f(6, 0);
+        Vector2f position = new Vector2f(5, 0);
 
         return Tetrimino.builder()
                 .type(type)
@@ -32,10 +32,12 @@ public class TetriminoFactory {
     }
 
     public Tetrimino getMovedStub(Tetrimino tetrimino, Vector2f positionChange) {
+        float x = tetrimino.getPosition().x + positionChange.x;
+        float y = tetrimino.getPosition().y + positionChange.y;
         return Tetrimino.builder()
                 .type(tetrimino.getType())
                 .color(tetrimino.getColor())
-                .position(tetrimino.getPosition().add(positionChange))
+                .position(new Vector2f(x, y))
                 .orientation(tetrimino.getOrientation())
                 .build();
     }

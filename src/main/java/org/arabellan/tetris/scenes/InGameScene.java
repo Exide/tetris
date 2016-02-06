@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.arabellan.tetris.Controller;
 import org.arabellan.tetris.Controller.Key;
 import org.arabellan.tetris.Renderable;
+import org.arabellan.tetris.domain.BlockMatrix;
 import org.arabellan.tetris.domain.InvalidMoveException;
 import org.arabellan.tetris.domain.Tetrimino;
 import org.arabellan.tetris.domain.TetriminoFactory;
@@ -21,6 +22,7 @@ import org.joml.Vector2f;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -38,7 +40,6 @@ public class InGameScene implements Scene {
     private long gameSpeed;
     private Instant lastUpdate = Instant.now();
 
-    @Inject
     private Well well;
     private Tetrimino activeTetrimino;
     private Tetrimino nextTetrimino;
@@ -75,31 +76,24 @@ public class InGameScene implements Scene {
     }
 
     private void initializeGameObjects() {
+        well = new Well();
         activeTetrimino = factory.getRandomTetrimino();
         nextTetrimino = factory.getRandomTetrimino();
     }
 
     @Override
     public List<Renderable> getRenderables() {
-        Renderable tetriminoRenderable = Renderable.builder()
-                .matrix(activeTetrimino.getMatrix())
-                .position(convertWellToScene(activeTetrimino.getPosition()))
-                .build();
-
-        Renderable wellRenderable = Renderable.builder()
-                .matrix(well.getMatrix())
-                .position(new Vector2f(-0.5f, 0f))
-                .build();
-
-        return Arrays.asList(wellRenderable, tetriminoRenderable);
+        Renderable wellRenderable = combineActiveTetriminoWithWell();
+        return Collections.singletonList(wellRenderable);
     }
 
-    private Vector2f convertWellToScene(Vector2f position) {
-        int width = well.getMatrix().width();
-        int height = well.getMatrix().height();
-        float x = position.x - ((float) width / 2);
-        float y = position.y + ((float) height / 2);
-        return new Vector2f(x, y);
+    private Renderable combineActiveTetriminoWithWell() {
+        return Renderable.builder()
+                .matrix(well.getMatrix()
+                        .copy()
+                        .add(activeTetrimino.getMatrix(), activeTetrimino.getPosition()))
+                .position(new Vector2f())
+                .build();
     }
 
     @Override
