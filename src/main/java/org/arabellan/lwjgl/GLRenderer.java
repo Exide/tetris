@@ -54,7 +54,6 @@ public class GLRenderer {
         createGLContext();
         initializeGLState();
         createBlockVAO(getBlockVertexData());
-        // TODO: make this not broken
         createTextVAO("test");
         shader = createDefaultShader();
         camera = new Camera(width, height);
@@ -185,6 +184,7 @@ public class GLRenderer {
     }
 
     private void renderText(Vector3f position) {
+        // TODO: make this not broken
         shader.setUniform("model", getModelMatrix(position));
 
         glBindVertexArray(textVAO);
