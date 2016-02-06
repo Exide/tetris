@@ -59,10 +59,7 @@ public class InGameScene implements Scene {
     public void initialize() {
         log.debug("Initializing");
         initializeInput();
-        initializeGameObjects();
-        currentPoints = 0;
-        currentLevel = 1;
-        gameSpeed = STARTING_SPEED;
+        initializeState();
     }
 
     private void initializeInput() {
@@ -76,10 +73,13 @@ public class InGameScene implements Scene {
         input.bind(Key.RIGHT, new MoveEvent(MoveEvent.Direction.Right));
     }
 
-    private void initializeGameObjects() {
+    private void initializeState() {
         well = new Well();
         activeTetrimino = factory.getRandomTetrimino();
         nextTetrimino = factory.getRandomTetrimino();
+        gameSpeed = STARTING_SPEED;
+        currentPoints = 0;
+        currentLevel = 1;
     }
 
     @Override

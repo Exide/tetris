@@ -11,6 +11,7 @@ import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL;
 
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.Arrays;
 
@@ -35,32 +36,55 @@ import static org.lwjgl.opengl.GL20.GL_VERTEX_SHADER;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL30.glGenVertexArrays;
+import static org.lwjgl.stb.STBEasyFont.stb_easy_font_print;
 
 @Slf4j
 public class GLRenderer {
 
+    private final int BYTES_PER_CHARACTER = 272;
+    private int textVAO;
+    private int textTriangleCount;
     // TODO: move all this shit into a Block class maybe?
     private int blockVAO;
     private int blockSize = 20;
-    private float p = 1f * (blockSize / 2);
-    private float[] block = {
-            -p, -p, // A    E--D
-            -p, +p, // B     \ |    counter-clockwise
-            +p, -p, // C      'F
-            +p, +p, // D    B.
-            -p, +p, // E    | \     clockwise
-            +p, -p, // F    A--C
-    };
-
     private ShaderProgram shader;
     private Camera camera;
 
     public void initialize(int width, int height) {
         createGLContext();
         initializeGLState();
-        blockVAO = loadBlockMesh();
+        createBlockVAO(getBlockVertexData());
+        // TODO: make this not broken
+        createTextVAO("test");
         shader = createDefaultShader();
         camera = new Camera(width, height);
+    }
+
+    private float[] getBlockVertexData() {
+        float p = 1f * (blockSize / 2);
+        return new float[]{
+                -p, -p, // A    E--D
+                -p, +p, // B     \ |    counter-clockwise
+                +p, -p, // C      'F
+                +p, +p, // D    B.
+                -p, +p, // E    | \     clockwise
+                +p, -p, // F    A--C
+        };
+    }
+
+    private void createBlockVAO(float[] vertices) {
+        ByteBuffer blockBuffer = BufferUtils.createByteBuffer(vertices.length * Float.BYTES);
+        blockBuffer.asFloatBuffer().put(vertices).flip();
+        blockVAO = loadMesh(blockBuffer);
+    }
+
+    private void createTextVAO(String text) {
+        ByteBuffer charBuffer = BufferUtils.createByteBuffer(text.length() * BYTES_PER_CHARACTER);
+        // More info: https://github.com/nothings/stb/blob/master/stb_easy_font.h#L24-L55
+        int textQuadCount = stb_easy_font_print(0, 0, text, null, charBuffer);
+        textTriangleCount = textQuadCount * 2;
+        ByteBuffer vertexBuffer = getTriangles(charBuffer);
+        textVAO = loadMesh(vertexBuffer);
     }
 
     private void createGLContext() {
@@ -79,17 +103,14 @@ public class GLRenderer {
         throwIfError();
     }
 
-    private int loadBlockMesh() {
-        int vbo = createVBO(block);
+    private int loadMesh(ByteBuffer buffer) {
+        int vbo = createVBO(buffer);
         return createVAO(vbo);
     }
 
-    private int createVBO(float[] vertices) {
+    private int createVBO(ByteBuffer buffer) {
         int id = glGenBuffers();
         throwIfError();
-
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(vertices.length);
-        buffer.put(vertices).flip();
 
         glBindBuffer(GL_ARRAY_BUFFER, id);
         throwIfError();
@@ -138,6 +159,7 @@ public class GLRenderer {
         shader.setUniform("view", getViewMatrix(camera));
         shader.setUniform("projection", getProjectionMatrix(camera));
         scene.getRenderables().forEach(this::drawRenderable);
+        renderText(new Vector3f());
         shader.disableAttribute("vertex");
         shader.disable();
     }
@@ -160,6 +182,60 @@ public class GLRenderer {
 
         glDrawArrays(GL_TRIANGLES, 0, 6);
         throwIfError();
+    }
+
+    private void renderText(Vector3f position) {
+        shader.setUniform("model", getModelMatrix(position));
+
+        glBindVertexArray(textVAO);
+        throwIfError();
+
+        glDrawArrays(GL_TRIANGLES, 0, textTriangleCount);
+        throwIfError();
+    }
+
+    private ByteBuffer getTriangles(ByteBuffer input) {
+        // input assumed to be interleaved array:
+        // x:float, y:float, z:float, color:uint8[4]
+
+        int vertexBufferSize = (input.capacity() / 4) * 3;
+        ByteBuffer output = BufferUtils.createByteBuffer(vertexBufferSize);
+
+        while (input.hasRemaining()) {
+            byte[] vertices = getVertices(input);
+            byte[] color = getColor(input);
+            output.put(vertices);
+        }
+
+        output.flip();
+        return output;
+    }
+
+    private byte[] getVertices(ByteBuffer buffer) {
+        int size = Float.BYTES;
+        byte[] x = new byte[size];
+        byte[] y = new byte[size];
+        byte[] z = new byte[size];
+        buffer.get(x, 0, size).get(y, 0, size).get(z, 0, size);
+        byte[] vertices = new byte[size * 3];
+        System.arraycopy(x, 0, vertices, 0, size);
+        System.arraycopy(y, 0, vertices, size, size);
+        System.arraycopy(z, 0, vertices, size * 2, size);
+        return vertices;
+    }
+
+    private byte[] getColor(ByteBuffer buffer) {
+        byte[] r = new byte[1];
+        byte[] g = new byte[1];
+        byte[] b = new byte[1];
+        byte[] a = new byte[1];
+        buffer.get(r).get(g).get(b).get(a);
+        byte[] color = new byte[4];
+        System.arraycopy(r, 0, color, 0, 1);
+        System.arraycopy(g, 0, color, 1, 1);
+        System.arraycopy(b, 0, color, 2, 1);
+        System.arraycopy(a, 0, color, 3, 1);
+        return color;
     }
 
     private Vector2f getRenderableScreenPosition(Vector2f position, BlockMatrix matrix) {
