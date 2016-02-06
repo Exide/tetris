@@ -69,16 +69,15 @@ public class Well {
         return false;
     }
 
-    public long clearCompleteRows() {
-        long points = 0;
-        long multiplier = 0;
+    public int clearCompleteRows() {
+        int rowsCleared = 0;
         for (int row = 0; row < grid.height() - 1; ++row) {
             if (isRowComplete(row)) {
-                points += clearRow(row);
-                ++multiplier;
+                clearRow(row);
+                ++rowsCleared;
             }
         }
-        return points * multiplier;
+        return rowsCleared;
     }
 
     private boolean isRowComplete(int row) {
@@ -87,7 +86,7 @@ public class Well {
 
     private long clearRow(Integer row) {
         for (; row > 0; --row) {
-            grid.getData()[row] = Arrays.copyOf(grid.getData()[row-1], grid.getData()[row-1].length);
+            grid.getData()[row] = Arrays.copyOf(grid.getData()[row - 1], grid.getData()[row - 1].length);
         }
         return SCORE_PER_LINE;
     }

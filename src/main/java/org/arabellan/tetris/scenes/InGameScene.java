@@ -31,14 +31,16 @@ import java.util.concurrent.TimeUnit;
 public class InGameScene implements Scene {
 
     private static final long STARTING_SPEED = TimeUnit.MILLISECONDS.toMillis(1500);
-    private static final long SPEED_CHANGE = TimeUnit.MILLISECONDS.toMillis(50);
+    private static final long SPEED_CHANGE = TimeUnit.MILLISECONDS.toMillis(100);
+    private static final int LINES_NEEDED_TO_LEVEL = 1;
+    private static final int POINTS_PER_LINE = 100;
 
+    private int totalLinesCleared;
     private long currentPoints;
     private int currentLevel;
     private long gameSpeed;
     private Instant lastUpdate = Instant.now();
 
-    private long score;
     private Well well;
     private Tetrimino activeTetrimino;
     private Tetrimino nextTetrimino;
@@ -100,21 +102,28 @@ public class InGameScene implements Scene {
         long delta = Duration.between(lastUpdate, Instant.now()).toMillis();
         if (delta >= gameSpeed) {
             log.debug(String.format("Tick! (%sms delta)", delta));
-            if (shouldIncreaseLevel()) increaseLevel();
             updateActiveTetrimino();
             clearRowsIfNeeded();
+            increaseLevelIfNeeded();
             lastUpdate = Instant.now();
         }
     }
 
     private void clearRowsIfNeeded() {
-        score = well.clearCompleteRows();
+        int linesCleared = well.clearCompleteRows();
+        increaseScore(linesCleared);
+        totalLinesCleared += linesCleared;
     }
 
-    private boolean shouldIncreaseLevel() {
-        int pointsRequiredMod = 2;
-        int pointsNeededForNextLevel = currentLevel * pointsRequiredMod * currentLevel;
-        return currentPoints > pointsNeededForNextLevel;
+    private void increaseScore(int linesCleared) {
+        currentPoints += linesCleared * POINTS_PER_LINE * linesCleared;
+    }
+
+    private void increaseLevelIfNeeded() {
+        int linesNeededForNextLevel = currentLevel * LINES_NEEDED_TO_LEVEL;
+        if (totalLinesCleared >= linesNeededForNextLevel) {
+            increaseLevel();
+        }
     }
 
     private void increaseLevel() {
@@ -136,7 +145,6 @@ public class InGameScene implements Scene {
         log.debug("Finalize active tetrimino");
         try {
             well.add(activeTetrimino);
-            currentPoints *= 2; // debug hack until we can clear blocks
             activateNextTetrimino();
         } catch (InvalidMoveException e) {
             gameOver();
