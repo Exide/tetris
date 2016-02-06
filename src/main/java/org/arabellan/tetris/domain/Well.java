@@ -86,10 +86,9 @@ public class Well {
     }
 
     private long clearRow(Integer row) {
-        // get everything in the matrix above this line
-        // remove this line
-        grid.getData()[row] = new Integer[]{1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
-        // move everything we stored down one line
+        for (; row > 0; --row) {
+            grid.getData()[row] = Arrays.copyOf(grid.getData()[row-1], grid.getData()[row-1].length);
+        }
         return SCORE_PER_LINE;
     }
 }
