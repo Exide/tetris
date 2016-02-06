@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.arabellan.tetris.Controller;
 import org.arabellan.tetris.Controller.Key;
 import org.arabellan.tetris.Renderable;
-import org.arabellan.tetris.domain.BlockMatrix;
 import org.arabellan.tetris.domain.InvalidMoveException;
 import org.arabellan.tetris.domain.Tetrimino;
 import org.arabellan.tetris.domain.TetriminoFactory;
@@ -21,7 +20,6 @@ import org.joml.Vector2f;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -40,6 +38,7 @@ public class InGameScene implements Scene {
     private long gameSpeed;
     private Instant lastUpdate = Instant.now();
 
+    private long score;
     private Well well;
     private Tetrimino activeTetrimino;
     private Tetrimino nextTetrimino;
@@ -103,8 +102,13 @@ public class InGameScene implements Scene {
             log.debug(String.format("Tick! (%sms delta)", delta));
             if (shouldIncreaseLevel()) increaseLevel();
             updateActiveTetrimino();
+            clearRowsIfNeeded();
             lastUpdate = Instant.now();
         }
+    }
+
+    private void clearRowsIfNeeded() {
+        score = well.clearCompleteRows();
     }
 
     private boolean shouldIncreaseLevel() {

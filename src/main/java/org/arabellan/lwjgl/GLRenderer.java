@@ -6,6 +6,7 @@ import org.arabellan.tetris.domain.BlockMatrix;
 import org.arabellan.tetris.scenes.Scene;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
+import org.joml.Vector2i;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL;
@@ -167,7 +168,7 @@ public class GLRenderer {
         return new Vector2f(x, y);
     }
 
-    private Vector3f getBlockScreenPosition(Vector2f position, Vector2f matrixCoord) {
+    private Vector3f getBlockScreenPosition(Vector2f position, Vector2i matrixCoord) {
         float x = (position.x + matrixCoord.x) * blockSize;
         float y = (position.y - matrixCoord.y) * blockSize;
         return new Vector3f(x, y, 0);

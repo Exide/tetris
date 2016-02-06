@@ -32,23 +32,6 @@ public class BlockMatrix {
         return this;
     }
 
-    public BlockMatrix add(Integer item, Vector2i position) {
-        data[position.x][position.y] = item;
-        return this;
-    }
-
-    public BlockMatrix replace(Integer a, Integer b) {
-        for (int row = 0; row < data.length; ++row) {
-            for (int column = 0; column < data[row].length; ++column) {
-                if (data[row][column] == a) {
-                    data[row][column] = b;
-                }
-            }
-        }
-
-        return this;
-    }
-
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
@@ -62,18 +45,6 @@ public class BlockMatrix {
         return sb.toString();
     }
 
-    public int count(Integer integer) {
-        int count = 0;
-        for (int row = 0; row < data.length; ++row) {
-            for (int column = 0; column < data[row].length; ++column) {
-                if (data[row][column] == integer) {
-                    ++count;
-                }
-            }
-        }
-        return count;
-    }
-
     public int height() {
         return data.length;
     }
@@ -82,10 +53,10 @@ public class BlockMatrix {
         return data[0].length;
     }
 
-    public void forEach(BiConsumer<Vector2f, Integer> consumer) {
+    public void forEach(BiConsumer<Vector2i, Integer> consumer) {
         for (int row = 0; row < data.length; ++row) {
             for (int column = 0; column < data[row].length; ++column) {
-                consumer.accept(new Vector2f(column, row), data[row][column]);
+                consumer.accept(new Vector2i(column, row), data[row][column]);
             }
         }
     }
