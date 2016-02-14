@@ -1,11 +1,11 @@
 package org.arabellan.tetris.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.joml.Vector2f;
-import org.joml.Vector2i;
 
 import java.util.Arrays;
-import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 public class BlockMatrix {
 
@@ -53,19 +53,29 @@ public class BlockMatrix {
         return data[0].length;
     }
 
-    public void forEach(BiConsumer<Vector2i, Integer> consumer) {
-        for (int row = 0; row < data.length; ++row) {
-            for (int column = 0; column < data[row].length; ++column) {
-                consumer.accept(new Vector2i(column, row), data[row][column]);
-            }
-        }
-    }
-
     public BlockMatrix copy() {
         Integer[][] copy = new Integer[data.length][];
         for (int i = 0; i < data.length; ++i) {
             copy[i] = Arrays.copyOf(data[i], data[i].length);
         }
         return new BlockMatrix(copy);
+    }
+
+    public Stream<BlockData> stream() {
+        Stream.Builder<BlockData> builder = Stream.builder();
+        int i = 0;
+        for (int row = 0; row < data.length; ++row) {
+            for (int column = 0; column < data[0].length; ++column) {
+                builder.add(new BlockData(i, data[row][column]));
+                ++i;
+            }
+        }
+        return builder.build();
+    }
+
+    @AllArgsConstructor
+    public class BlockData {
+        public int index;
+        public int value;
     }
 }

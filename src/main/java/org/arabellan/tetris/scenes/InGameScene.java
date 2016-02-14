@@ -4,6 +4,8 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+import org.arabellan.lwjgl.opengl.VertexArrayObject;
+import org.arabellan.lwjgl.opengl.VertexBufferObject;
 import org.arabellan.tetris.Controller;
 import org.arabellan.tetris.Controller.Key;
 import org.arabellan.tetris.Renderable;
@@ -17,12 +19,14 @@ import org.arabellan.tetris.events.MoveEvent;
 import org.arabellan.tetris.events.QuitEvent;
 import org.arabellan.tetris.events.RotateEvent;
 import org.joml.Vector2f;
+import org.lwjgl.BufferUtils;
 
+import java.nio.ByteBuffer;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * This class is responsible for the logic during the game.
@@ -54,6 +58,7 @@ public class InGameScene implements Scene {
     @Inject
     private EventBus eventBus;
     private InputListener inputListener;
+    private VertexArrayObject block;
 
     @Override
     public void initialize() {
@@ -74,6 +79,7 @@ public class InGameScene implements Scene {
     }
 
     private void initializeState() {
+        block = createBlock();
         well = new Well();
         activeTetrimino = factory.getRandomTetrimino();
         nextTetrimino = factory.getRandomTetrimino();
@@ -82,19 +88,50 @@ public class InGameScene implements Scene {
         currentLevel = 1;
     }
 
-    @Override
-    public List<Renderable> getRenderables() {
-        Renderable wellRenderable = combineActiveTetriminoWithWell();
-        return Collections.singletonList(wellRenderable);
+    private VertexArrayObject createBlock() {
+        return VertexArrayObject.builder()
+                .buffer(VertexBufferObject.builder()
+                        .type(VertexBufferObject.Type.VERTICES)
+                        .dimensions(2)
+                        .data(createBufferFor(new float[]{-10, -10, -10, 10, 10, -10, 10, 10, -10, 10, 10, -10}))
+                        .build())
+                .build();
     }
 
-    private Renderable combineActiveTetriminoWithWell() {
-        return Renderable.builder()
-                .matrix(well.getMatrix()
-                        .copy()
-                        .add(activeTetrimino.getMatrix(), activeTetrimino.getPosition()))
-                .position(new Vector2f())
-                .build();
+    private ByteBuffer createBufferFor(float[] array) {
+        ByteBuffer buffer = BufferUtils.createByteBuffer(array.length * Float.BYTES);
+        buffer.asFloatBuffer().put(array).flip();
+        return buffer;
+    }
+
+    @Override
+    public List<Renderable> getRenderables() {
+        return well.getMatrix()
+                .copy()
+                .add(activeTetrimino.getMatrix(), activeTetrimino.getPosition())
+                .stream()
+                .filter(cell -> cell.value == 1)
+                .map(cell -> Renderable.builder()
+                        .vertexArray(block)
+                        .position(getWorldPositionForBlock(cell.index))
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    private Vector2f getWorldPositionForBlock(int i) {
+        float wellX = 0;
+        float wellY = 0;
+        int wellWidth = 12;
+        int wellHeight = 22;
+        float blockWidth = 20;
+        float blockHeight = 20;
+        int row = i / wellWidth;
+        int column = i - (row * wellWidth);
+        float left = wellX - (wellWidth / 2 * blockWidth);
+        float top = wellY + (wellHeight / 2 * blockHeight);
+        float x = left + (column * blockWidth) + (blockWidth / 2);
+        float y = top - (row * blockHeight) - (blockHeight / 2);
+        return new Vector2f(x, y);
     }
 
     @Override
