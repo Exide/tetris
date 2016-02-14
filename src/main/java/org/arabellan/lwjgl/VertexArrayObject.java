@@ -1,12 +1,12 @@
-package org.arabellan.lwjgl.opengl;
+package org.arabellan.lwjgl;
 
 import lombok.Value;
-import org.arabellan.lwjgl.opengl.VertexBufferObject.Type;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.arabellan.lwjgl.GLException.throwIfError;
+import static org.arabellan.lwjgl.VertexBufferObject.Type;
 import static org.lwjgl.opengl.GL11.GL_FLOAT;
 import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL15.glBindBuffer;

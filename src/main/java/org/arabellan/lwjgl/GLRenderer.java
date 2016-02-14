@@ -13,7 +13,7 @@ import java.nio.FloatBuffer;
 import java.util.Arrays;
 
 import static org.arabellan.lwjgl.GLException.throwIfError;
-import static org.arabellan.lwjgl.opengl.VertexBufferObject.Type.VERTICES;
+import static org.arabellan.lwjgl.VertexBufferObject.Type.VERTICES;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
@@ -82,7 +82,9 @@ public class GLRenderer {
     }
 
     private void drawRenderable(Renderable renderable) {
-        defaultShader.setUniform("model", getModelMatrix(renderable.getPosition()));
+        Vector2f position = renderable.getTransform().getPosition();
+        Vector2f scale = renderable.getTransform().getScale();
+        defaultShader.setUniform("model", getModelMatrix(position, scale));
 
         glBindVertexArray(renderable.getVertexArray().getId());
         throwIfError();
@@ -91,12 +93,14 @@ public class GLRenderer {
         throwIfError();
     }
 
-    private FloatBuffer getModelMatrix(Vector2f position) {
-        return getModelMatrix(new Vector3f(position.x, position.y, 0));
+    private FloatBuffer getModelMatrix(Vector2f position, Vector2f scale) {
+        Vector3f positionIn3D = new Vector3f(position.x, position.y, 0);
+        Vector3f scaleIn3D = new Vector3f(scale.x, scale.y, 0);
+        return getModelMatrix(positionIn3D, scaleIn3D);
     }
 
-    private FloatBuffer getModelMatrix(Vector3f position) {
-        Matrix4f model = new Matrix4f().translate(position);
+    private FloatBuffer getModelMatrix(Vector3f position, Vector3f scale) {
+        Matrix4f model = new Matrix4f().translate(position).scale(scale);
         return matrixAsBuffer(model);
     }
 

@@ -4,8 +4,9 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
-import org.arabellan.lwjgl.opengl.VertexArrayObject;
-import org.arabellan.lwjgl.opengl.VertexBufferObject;
+import org.arabellan.lwjgl.Transform;
+import org.arabellan.lwjgl.VertexArrayObject;
+import org.arabellan.lwjgl.VertexBufferObject;
 import org.arabellan.tetris.Controller;
 import org.arabellan.tetris.Controller.Key;
 import org.arabellan.tetris.Renderable;
@@ -38,6 +39,8 @@ public class InGameScene implements Scene {
     private static final long SPEED_CHANGE = TimeUnit.MILLISECONDS.toMillis(100);
     private static final int LINES_NEEDED_MULTIPLIER = 10;
     private static final int POINTS_PER_LINE = 100;
+
+    private static final int BLOCK_SIZE = 20;
 
     private int totalLinesCleared;
     private long currentPoints;
@@ -93,7 +96,7 @@ public class InGameScene implements Scene {
                 .buffer(VertexBufferObject.builder()
                         .type(VertexBufferObject.Type.VERTICES)
                         .dimensions(2)
-                        .data(createBufferFor(new float[]{-10, -10, -10, 10, 10, -10, 10, 10, -10, 10, 10, -10}))
+                        .data(createBufferFor(new float[]{-1, -1, -1, 1, 1, -1, 1, 1, -1, 1, 1, -1}))
                         .build())
                 .build();
     }
@@ -113,7 +116,10 @@ public class InGameScene implements Scene {
                 .filter(cell -> cell.value == 1)
                 .map(cell -> Renderable.builder()
                         .vertexArray(block)
-                        .position(getWorldPositionForBlock(cell.index))
+                        .transform(Transform.builder()
+                                .position(getWorldPositionForBlock(cell.index))
+                                .scale(new Vector2f(BLOCK_SIZE / 2, BLOCK_SIZE / 2))
+                                .build())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -123,8 +129,8 @@ public class InGameScene implements Scene {
         float wellY = 0;
         int wellWidth = 12;
         int wellHeight = 22;
-        float blockWidth = 20;
-        float blockHeight = 20;
+        float blockWidth = BLOCK_SIZE;
+        float blockHeight = BLOCK_SIZE;
         int row = i / wellWidth;
         int column = i - (row * wellWidth);
         float left = wellX - (wellWidth / 2 * blockWidth);

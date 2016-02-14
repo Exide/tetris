@@ -1,4 +1,4 @@
-package org.arabellan.lwjgl.opengl;
+package org.arabellan.lwjgl;
 
 import lombok.Value;
 
