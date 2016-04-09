@@ -9,22 +9,24 @@ import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL;
 
-import java.nio.FloatBuffer;
-import java.util.Arrays;
+import java.nio.IntBuffer;
 
 import static org.arabellan.lwjgl.GLException.throwIfError;
-import static org.arabellan.lwjgl.VertexBufferObject.Type.VERTICES;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.GL_VERSION;
+import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
+import static org.lwjgl.opengl.GL11.GL_VIEWPORT;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
-import static org.lwjgl.opengl.GL11.glDrawArrays;
+import static org.lwjgl.opengl.GL11.glDrawElements;
+import static org.lwjgl.opengl.GL11.glGetInteger;
+import static org.lwjgl.opengl.GL11.glGetIntegerv;
 import static org.lwjgl.opengl.GL11.glGetString;
-import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
 import static org.lwjgl.opengl.GL20.GL_SHADING_LANGUAGE_VERSION;
-import static org.lwjgl.opengl.GL20.GL_VERTEX_SHADER;
+import static org.lwjgl.opengl.GL20.glUseProgram;
+import static org.lwjgl.opengl.GL30.GL_MAJOR_VERSION;
+import static org.lwjgl.opengl.GL30.GL_MINOR_VERSION;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 
 /**
@@ -34,25 +36,45 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 @Slf4j
 public class GLRenderer {
 
-    private ShaderProgram defaultShader;
     private Camera camera;
 
     public void initialize(int width, int height) {
-        createGLContext();
-        initializeGLState();
-        defaultShader = createDefaultShader();
-        camera = new Camera(width, height);
-    }
-
-    private void createGLContext() {
         GL.createCapabilities();
         throwIfError();
 
-        log.info("GL version: " + glGetString(GL_VERSION));
+        logGLVersion();
+        logGLSLVersion();
+
+        initializeGLState();
+        logGLState();
+
+        camera = new Camera(width, height);
+    }
+
+    private void logGLVersion() {
+        int majorVersion = glGetInteger(GL_MAJOR_VERSION);
         throwIfError();
 
-        log.info("GLSL version: " + glGetString(GL_SHADING_LANGUAGE_VERSION));
+        int minorVersion = glGetInteger(GL_MINOR_VERSION);
         throwIfError();
+
+        log.debug(String.format("GL version: %s.%s", majorVersion, minorVersion));
+    }
+
+    private void logGLSLVersion() {
+        String glslVersion = glGetString(GL_SHADING_LANGUAGE_VERSION);
+        throwIfError();
+
+        log.debug(String.format("GLSL version: %s", glslVersion));
+    }
+
+    private void logGLState() {
+        IntBuffer viewportState = BufferUtils.createIntBuffer(4);
+        glGetIntegerv(GL_VIEWPORT, viewportState);
+        throwIfError();
+
+        log.debug(String.format("GL viewport window coordinates: %s,%s", viewportState.get(0), viewportState.get(1)));
+        log.debug(String.format("GL viewport dimensions: %sx%s", viewportState.get(2), viewportState.get(3)));
     }
 
     private void initializeGLState() {
@@ -60,63 +82,44 @@ public class GLRenderer {
         throwIfError();
     }
 
-    private ShaderProgram createDefaultShader() {
-        Shader vertex = new Shader("shaders/vertex.glsl", GL_VERTEX_SHADER);
-        Shader fragment = new Shader("shaders/fragment.glsl", GL_FRAGMENT_SHADER);
-        return new ShaderProgram(Arrays.asList(vertex, fragment));
-    }
-
     public void draw(Scene scene) {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         throwIfError();
 
         if (scene.getRenderables().isEmpty()) return;
-
-        defaultShader.enable();
-        defaultShader.enableAttribute("vertex");
-        defaultShader.setUniform("view", getViewMatrix(camera));
-        defaultShader.setUniform("projection", getProjectionMatrix(camera));
         scene.getRenderables().forEach(this::drawRenderable);
-        defaultShader.disableAttribute("vertex");
-        defaultShader.disable();
     }
 
     private void drawRenderable(Renderable renderable) {
+        ShaderProgram shader = renderable.getShader();
         Vector2f position = renderable.getTransform().getPosition();
         Vector2f scale = renderable.getTransform().getScale();
-        defaultShader.setUniform("model", getModelMatrix(position, scale));
 
-        glBindVertexArray(renderable.getVertexArray().getId());
+        glUseProgram(shader.getId());
         throwIfError();
 
-        glDrawArrays(GL_TRIANGLES, 0, renderable.getVertexArray().getBuffer(VERTICES).getVertexCount());
+        shader.setUniform("view", getViewMatrix(camera));
+        shader.setUniform("projection", getProjectionMatrix(camera));
+        shader.setUniform("model", getModelMatrix(position, scale));
+
+        glBindVertexArray(renderable.getVertexArray());
+        throwIfError();
+
+        glDrawElements(GL_TRIANGLES, renderable.getVertexCount(), GL_UNSIGNED_INT, 0);
         throwIfError();
     }
 
-    private FloatBuffer getModelMatrix(Vector2f position, Vector2f scale) {
+    private Matrix4f getModelMatrix(Vector2f position, Vector2f scale) {
         Vector3f positionIn3D = new Vector3f(position.x, position.y, 0);
         Vector3f scaleIn3D = new Vector3f(scale.x, scale.y, 0);
-        return getModelMatrix(positionIn3D, scaleIn3D);
+        return new Matrix4f().translate(positionIn3D).scale(scaleIn3D);
     }
 
-    private FloatBuffer getModelMatrix(Vector3f position, Vector3f scale) {
-        Matrix4f model = new Matrix4f().translate(position).scale(scale);
-        return matrixAsBuffer(model);
+    private Matrix4f getViewMatrix(Camera camera) {
+        return new Matrix4f().lookAt(camera.position, camera.focus, camera.up);
     }
 
-    private FloatBuffer getViewMatrix(Camera camera) {
-        Matrix4f view = new Matrix4f().lookAt(camera.position, camera.focus, camera.up);
-        return matrixAsBuffer(view);
-    }
-
-    private FloatBuffer getProjectionMatrix(Camera camera) {
-        Matrix4f projection = new Matrix4f().setOrtho(camera.left, camera.right, camera.bottom, camera.top, camera.nearClip, camera.farClip);
-        return matrixAsBuffer(projection);
-    }
-
-    private FloatBuffer matrixAsBuffer(Matrix4f matrix) {
-        FloatBuffer buffer = BufferUtils.createFloatBuffer(16);
-        matrix.get(buffer);
-        return buffer;
+    private Matrix4f getProjectionMatrix(Camera camera) {
+        return new Matrix4f().setOrtho(camera.left, camera.right, camera.bottom, camera.top, camera.nearClip, camera.farClip);
     }
 }

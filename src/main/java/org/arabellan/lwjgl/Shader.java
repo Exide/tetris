@@ -17,7 +17,7 @@ import static org.lwjgl.opengl.GL20.glShaderSource;
 public class Shader {
     int id;
 
-    Shader(String filename, int type) {
+    public Shader(String filename, int type) {
         id = glCreateShader(type);
         throwIfError();
 

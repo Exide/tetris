@@ -1,10 +1,13 @@
-#version 330
+#version 400 core
 
+in vec3 position;
+in vec2 texcoord;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
-in vec2 vertex;
+out vec2 uv;
 
 void main() {
-    gl_Position = projection * view * model * vec4(vertex, 0, 1);
+    gl_Position = projection * view * model * vec4(position, 1);
+    uv = texcoord;
 }

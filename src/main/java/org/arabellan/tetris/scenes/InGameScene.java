@@ -4,9 +4,10 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
+import org.arabellan.common.Image;
+import org.arabellan.lwjgl.Shader;
+import org.arabellan.lwjgl.ShaderProgram;
 import org.arabellan.lwjgl.Transform;
-import org.arabellan.lwjgl.VertexArrayObject;
-import org.arabellan.lwjgl.VertexBufferObject;
 import org.arabellan.tetris.Controller;
 import org.arabellan.tetris.Controller.Key;
 import org.arabellan.tetris.Renderable;
@@ -22,12 +23,40 @@ import org.arabellan.tetris.events.RotateEvent;
 import org.joml.Vector2f;
 import org.lwjgl.BufferUtils;
 
-import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static org.arabellan.lwjgl.GLException.throwIfError;
+import static org.lwjgl.opengl.GL11.GL_LINEAR;
+import static org.lwjgl.opengl.GL11.GL_RGB;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_S;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_T;
+import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
+import static org.lwjgl.opengl.GL11.glBindTexture;
+import static org.lwjgl.opengl.GL11.glGenTextures;
+import static org.lwjgl.opengl.GL11.glTexImage2D;
+import static org.lwjgl.opengl.GL11.glTexParameteri;
+import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
+import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.GL_ELEMENT_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
+import static org.lwjgl.opengl.GL15.glBindBuffer;
+import static org.lwjgl.opengl.GL15.glBufferData;
+import static org.lwjgl.opengl.GL15.glGenBuffers;
+import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
+import static org.lwjgl.opengl.GL20.GL_VERTEX_SHADER;
+import static org.lwjgl.opengl.GL20.glUseProgram;
+import static org.lwjgl.opengl.GL30.glBindVertexArray;
+import static org.lwjgl.opengl.GL30.glGenVertexArrays;
 
 /**
  * This class is responsible for the logic during the game.
@@ -35,7 +64,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class InGameScene implements Scene {
 
-    private static final long STARTING_SPEED = TimeUnit.MILLISECONDS.toMillis(1500);
+    private static final long STARTING_SPEED = TimeUnit.MILLISECONDS.toMillis(1000);
     private static final long SPEED_CHANGE = TimeUnit.MILLISECONDS.toMillis(100);
     private static final int LINES_NEEDED_MULTIPLIER = 10;
     private static final int POINTS_PER_LINE = 100;
@@ -47,6 +76,8 @@ public class InGameScene implements Scene {
     private int currentLevel;
     private long gameSpeed;
     private Instant lastUpdate = Instant.now();
+
+    private Renderable block;
 
     private Well well;
     private Tetrimino activeTetrimino;
@@ -61,7 +92,6 @@ public class InGameScene implements Scene {
     @Inject
     private EventBus eventBus;
     private InputListener inputListener;
-    private VertexArrayObject block;
 
     @Override
     public void initialize() {
@@ -91,20 +121,121 @@ public class InGameScene implements Scene {
         currentLevel = 1;
     }
 
-    private VertexArrayObject createBlock() {
-        return VertexArrayObject.builder()
-                .buffer(VertexBufferObject.builder()
-                        .type(VertexBufferObject.Type.VERTICES)
-                        .dimensions(2)
-                        .data(createBufferFor(new float[]{-1, -1, -1, 1, 1, -1, 1, 1, -1, 1, 1, -1}))
-                        .build())
-                .build();
-    }
+    private Renderable createBlock() {
+        // build a vertex array
+        int vertexArray = glGenVertexArrays();
+        throwIfError();
 
-    private ByteBuffer createBufferFor(float[] array) {
-        ByteBuffer buffer = BufferUtils.createByteBuffer(array.length * Float.BYTES);
-        buffer.asFloatBuffer().put(array).flip();
-        return buffer;
+        glBindVertexArray(vertexArray);
+        throwIfError();
+
+        // build the shader
+        Shader vertex = new Shader("shaders/vertex.glsl", GL_VERTEX_SHADER);
+        Shader fragment = new Shader("shaders/fragment.glsl", GL_FRAGMENT_SHADER);
+        ShaderProgram shader = new ShaderProgram(Arrays.asList(vertex, fragment));
+
+        // enable the shader for this vertex array
+        glUseProgram(shader.getId());
+        throwIfError();
+
+        // define elements
+        IntBuffer elements = BufferUtils.createIntBuffer(6);
+        elements.put(new int[]{
+                0, 1, 2,    // 1 0  counter
+                2, 1, 3     // 3 2  clockwise
+        }).flip();
+
+        // push the elements to the gpu
+        int elementBuffer = glGenBuffers();
+        throwIfError();
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
+        throwIfError();
+
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, elements, GL_STATIC_DRAW);
+        throwIfError();
+
+        // define vertices
+        int vertexCount = 12;
+        FloatBuffer vertices = BufferUtils.createFloatBuffer(vertexCount);
+        // new float[]{-1, -1, -1, 1, 1, -1, 1, 1, -1, 1, 1, -1}
+        vertices.put(new float[]{
+                +0.5f, +0.5f, +0f,    // top right
+                -0.5f, +0.5f, +0f,    // top left
+                +0.5f, -0.5f, +0f,    // bottom right
+                -0.5f, -0.5f, +0f     // bottom left
+        }).flip();
+
+        // push the vertices to the gpu
+        int vertexBuffer = glGenBuffers();
+        throwIfError();
+
+        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+        throwIfError();
+
+        glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
+        throwIfError();
+
+        // tell the shader how to read vertices
+        shader.setAttribute("position", 3);
+
+        // define texture coordinates
+        FloatBuffer texcoords = BufferUtils.createFloatBuffer(12);
+        // new float[]{0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1}
+        texcoords.put(new float[]{
+                1f, 0f,     // top right
+                0f, 0f,     // top left
+                1f, 1f,     // bottom right
+                0f, 1f      // bottom left
+        }).flip();
+
+        // push the texture coordinates to the gpu
+        int texcoordBuffer = glGenBuffers();
+        throwIfError();
+
+        glBindBuffer(GL_ARRAY_BUFFER, texcoordBuffer);
+        throwIfError();
+
+        glBufferData(GL_ARRAY_BUFFER, texcoords, GL_STATIC_DRAW);
+        throwIfError();
+
+        // tell the shader how to read texture coordinates
+        shader.setAttribute("texcoord", 2);
+
+        // define the texture
+        Image image = new Image("assets/block.bmp");
+
+        // push the texture to the gpu
+        int textureBuffer = glGenTextures();
+        throwIfError();
+
+        glBindTexture(GL_TEXTURE_2D, textureBuffer);
+        throwIfError();
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.getWidth(), image.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, image.getPixels());
+        throwIfError();
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        throwIfError();
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        throwIfError();
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        throwIfError();
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        throwIfError();
+
+        // tell the shader how to read the texture
+        shader.setUniform("image", 0);
+
+        // finally bundle up the pieces needed for the renderer
+        return Renderable.builder()
+                .shader(shader)
+                .vertexArray(vertexArray)
+                .vertexCount(vertexCount)
+                .build();
     }
 
     @Override
@@ -115,7 +246,9 @@ public class InGameScene implements Scene {
                 .stream()
                 .filter(cell -> cell.value == 1)
                 .map(cell -> Renderable.builder()
-                        .vertexArray(block)
+                        .shader(block.getShader())
+                        .vertexArray(block.getVertexArray())
+                        .vertexCount(block.getVertexCount())
                         .transform(Transform.builder()
                                 .position(getWorldPositionForBlock(cell.index))
                                 .scale(new Vector2f(BLOCK_SIZE / 2, BLOCK_SIZE / 2))
@@ -209,17 +342,17 @@ public class InGameScene implements Scene {
         }
     }
 
-    public void moveActiveTetrimino(Vector2f nextPosition) {
-        log.debug("Moving active tetrimino");
+    private void moveActiveTetrimino(Vector2f nextPosition) {
         Tetrimino movedStub = factory.getMovedStub(activeTetrimino, nextPosition);
         if (well.isPositionAllowed(movedStub)) {
+            log.debug("Moving active tetrimino");
             activeTetrimino.setPosition(movedStub.getPosition());
         } else {
             throw new InvalidMoveException();
         }
     }
 
-    public void rotateActiveTetrimino() {
+    private void rotateActiveTetrimino() {
         log.debug("Rotating active tetrimino");
         Tetrimino rotatedStub = factory.getRotatedStub(activeTetrimino);
         if (well.isPositionAllowed(rotatedStub)) {
@@ -227,7 +360,7 @@ public class InGameScene implements Scene {
         }
     }
 
-    public void dropActiveTetrimino() {
+    private void dropActiveTetrimino() {
         log.debug("Dropping tetrimino");
         Vector2f nextPosition = new Vector2f(0, -1);
         Tetrimino movedStub = factory.getMovedStub(activeTetrimino, nextPosition);
@@ -247,15 +380,19 @@ public class InGameScene implements Scene {
     private class InputListener {
         @Subscribe
         public void listenForMove(MoveEvent event) {
-            log.debug("MoveEvent received");
-            if (event.getDirection() == MoveEvent.Direction.Left) {
-                moveActiveTetrimino(new Vector2f(-1, 0));
-            } else if (event.getDirection() == MoveEvent.Direction.Right) {
-                moveActiveTetrimino(new Vector2f(1, 0));
-            } else if (event.getDirection() == MoveEvent.Direction.Down) {
-                moveActiveTetrimino(new Vector2f(0, -1));
-            } else {
-                log.warn("Unknown move event: " + event.getDirection().name());
+            try {
+                log.debug("MoveEvent received");
+                if (event.getDirection() == MoveEvent.Direction.Left) {
+                    moveActiveTetrimino(new Vector2f(-1, 0));
+                } else if (event.getDirection() == MoveEvent.Direction.Right) {
+                    moveActiveTetrimino(new Vector2f(1, 0));
+                } else if (event.getDirection() == MoveEvent.Direction.Down) {
+                    moveActiveTetrimino(new Vector2f(0, -1));
+                } else {
+                    log.warn("Unknown move event: " + event.getDirection().name());
+                }
+            } catch (InvalidMoveException e) {
+                log.debug("Ignoring invalid movement");
             }
         }
 
