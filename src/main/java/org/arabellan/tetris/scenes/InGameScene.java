@@ -158,13 +158,14 @@ public class InGameScene implements Scene {
         // define vertices
         int vertexCount = 12;
         FloatBuffer vertices = BufferUtils.createFloatBuffer(vertexCount);
-        // new float[]{-1, -1, -1, 1, 1, -1, 1, 1, -1, 1, 1, -1}
+//        vertices.put(new float[]{-1, -1, -1, 1, 1, -1, 1, 1, -1, 1, 1, -1});
         vertices.put(new float[]{
-                +0.5f, +0.5f, +0f,    // top right
-                -0.5f, +0.5f, +0f,    // top left
-                +0.5f, -0.5f, +0f,    // bottom right
-                -0.5f, -0.5f, +0f     // bottom left
-        }).flip();
+                +1f, +1f, +0f,    // top right
+                -1f, +1f, +0f,    // top left
+                +1f, -1f, +0f,    // bottom right
+                -1f, -1f, +0f     // bottom left
+        });
+        vertices.flip();
 
         // push the vertices to the gpu
         int vertexBuffer = glGenBuffers();
@@ -181,13 +182,13 @@ public class InGameScene implements Scene {
 
         // define texture coordinates
         FloatBuffer texcoords = BufferUtils.createFloatBuffer(12);
-        // new float[]{0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1}
         texcoords.put(new float[]{
                 1f, 0f,     // top right
                 0f, 0f,     // top left
                 1f, 1f,     // bottom right
                 0f, 1f      // bottom left
-        }).flip();
+        });
+        texcoords.flip();
 
         // push the texture coordinates to the gpu
         int texcoordBuffer = glGenBuffers();
