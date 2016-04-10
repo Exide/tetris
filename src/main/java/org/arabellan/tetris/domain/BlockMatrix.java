@@ -13,7 +13,7 @@ public class BlockMatrix {
     @Getter
     Integer[][] data;
 
-    BlockMatrix(Integer[][] data) {
+    public BlockMatrix(Integer[][] data) {
         this.data = data;
     }
 

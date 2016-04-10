@@ -12,6 +12,7 @@ import org.arabellan.lwjgl.Transform;
 import org.arabellan.tetris.Controller;
 import org.arabellan.tetris.Controller.Key;
 import org.arabellan.tetris.Renderable;
+import org.arabellan.tetris.domain.BlockMatrix;
 import org.arabellan.tetris.domain.InvalidMoveException;
 import org.arabellan.tetris.domain.Tetrimino;
 import org.arabellan.tetris.domain.TetriminoFactory;
@@ -22,6 +23,7 @@ import org.arabellan.tetris.events.MoveEvent;
 import org.arabellan.tetris.events.QuitEvent;
 import org.arabellan.tetris.events.RotateEvent;
 import org.joml.Vector2f;
+import org.joml.Vector2i;
 import org.joml.Vector4f;
 
 import java.time.Duration;
@@ -29,7 +31,9 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.arabellan.lwjgl.GLException.throwIfError;
 import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
@@ -161,6 +165,12 @@ public class InGameScene implements Scene {
 
     @Override
     public List<Renderable> getRenderables() {
+        return Stream.of(getWellRenderables(), getNextTetriminoRenderables())
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
+    }
+
+    private Stream<Renderable> getWellRenderables() {
         return well.getMatrix()
                 .copy()
                 .add(activeTetrimino.getMatrix(), activeTetrimino.getPosition())
@@ -172,11 +182,35 @@ public class InGameScene implements Scene {
                         .vertexArray(block.getVertexArray())
                         .vertexCount(block.getVertexCount())
                         .transform(Transform.builder()
-                                .position(getWorldPositionForBlock(cell.getIndex()))
+                                .position(getWorldPositionForBlock(cell.getIndex(), new Vector2f(-100f, 0), new Vector2i(12, 22)))
                                 .scale(new Vector2f(BLOCK_SIZE / 2, BLOCK_SIZE / 2))
                                 .build())
-                        .build())
-                .collect(Collectors.toList());
+                        .build());
+    }
+
+    private Stream<Renderable> getNextTetriminoRenderables() {
+        return new BlockMatrix(new Integer[][]{
+                {1, 1, 1, 1, 1, 1, 1},
+                {1, 0, 0, 0, 0, 0, 1},
+                {1, 0, 0, 0, 0, 0, 1},
+                {1, 0, 0, 0, 0, 0, 1},
+                {1, 0, 0, 0, 0, 0, 1},
+                {1, 0, 0, 0, 0, 0, 1},
+                {1, 0, 0, 0, 0, 0, 1},
+                {1, 1, 1, 1, 1, 1, 1}})
+                .add(nextTetrimino.getMatrix(), new Vector2f(3, -2))
+                .stream()
+                .filter(cell -> cell.getValue() != 0)
+                .map(cell -> Renderable.builder()
+                        .shader(block.getShader())
+                        .color(convertCellValueToColor(cell.getValue()))
+                        .vertexArray(block.getVertexArray())
+                        .vertexCount(block.getVertexCount())
+                        .transform(Transform.builder()
+                                .position(getWorldPositionForBlock(cell.getIndex(), new Vector2f(100f, 140f), new Vector2i(7, 8)))
+                                .scale(new Vector2f(BLOCK_SIZE / 2, BLOCK_SIZE / 2))
+                                .build())
+                        .build());
     }
 
     private Vector4f convertCellValueToColor(int value) {
@@ -202,17 +236,13 @@ public class InGameScene implements Scene {
         }
     }
 
-    private Vector2f getWorldPositionForBlock(int i) {
-        float wellX = 0;
-        float wellY = 0;
-        int wellWidth = 12;
-        int wellHeight = 22;
+    private Vector2f getWorldPositionForBlock(int i, Vector2f anchor, Vector2i dimensions) {
         float blockWidth = BLOCK_SIZE;
         float blockHeight = BLOCK_SIZE;
-        int row = i / wellWidth;
-        int column = i - (row * wellWidth);
-        float left = wellX - (wellWidth / 2 * blockWidth);
-        float top = wellY + (wellHeight / 2 * blockHeight);
+        int row = i / dimensions.x;
+        int column = i - (row * dimensions.x);
+        float left = anchor.x - (dimensions.x / 2 * blockWidth);
+        float top = anchor.y + (dimensions.y / 2 * blockHeight);
         float x = left + (column * blockWidth) + (blockWidth / 2);
         float y = top - (row * blockHeight) - (blockHeight / 2);
         return new Vector2f(x, y);
