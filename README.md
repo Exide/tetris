@@ -1,20 +1,24 @@
 # tetris
 An implementation of Tetris based on what I find enjoyable.
 
-## Controls:
-- Movement: left, right
-- Rotate: up
-- Soft Drop: down
-- Hard Drop: space
-- Quit: escape
+## Pre-requisites:
 
-[1]: http://en.wikipedia.org/wiki/Tetris
+- Gradle 2.3 _(compile time only)_
+- Java 1.8
+- OpenGL 4.0
+- GLSL 4.0
 
 ## Quickstart:
 
+```shell
+$ gradle jar
+$ java -XstartOnFirstThread -jar build/libs/tetris.jar
 ```
-~$ git clone git@github.com:exide/tetris.git
-~$ cd tetris
-~/tetris$ gradle jar
-~/tetris$ java -XstartOnFirstThread -jar build/libs/tetris.jar
-```
+
+## Controls:
+- **Movement:** left, right
+- **Rotate:** up
+- **Soft Drop:** down
+- **Hard Drop:** space
+- **Quit:** escape
+
