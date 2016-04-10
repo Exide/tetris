@@ -130,8 +130,8 @@ public class InGameScene implements Scene {
         throwIfError();
 
         // build the shader
-        Shader vertex = new Shader("shaders/vertex.glsl", GL_VERTEX_SHADER);
-        Shader fragment = new Shader("shaders/fragment.glsl", GL_FRAGMENT_SHADER);
+        Shader vertex = new Shader("assets/shaders/vertex.glsl", GL_VERTEX_SHADER);
+        Shader fragment = new Shader("assets/shaders/fragment.glsl", GL_FRAGMENT_SHADER);
         ShaderProgram shader = new ShaderProgram(Arrays.asList(vertex, fragment));
 
         // enable the shader for this vertex array
@@ -204,7 +204,7 @@ public class InGameScene implements Scene {
         shader.setAttribute("texcoord", 2);
 
         // define the texture
-        Image image = new Image("assets/block.bmp");
+        Image image = new Image("assets/images/block.bmp");
 
         // push the texture to the gpu
         int textureBuffer = glGenTextures();
