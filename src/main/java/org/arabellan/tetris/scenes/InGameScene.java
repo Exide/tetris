@@ -158,7 +158,6 @@ public class InGameScene implements Scene {
         // define vertices
         int vertexCount = 12;
         FloatBuffer vertices = BufferUtils.createFloatBuffer(vertexCount);
-//        vertices.put(new float[]{-1, -1, -1, 1, 1, -1, 1, 1, -1, 1, 1, -1});
         vertices.put(new float[]{
                 +1f, +1f, +0f,    // top right
                 -1f, +1f, +0f,    // top left
