@@ -5,6 +5,7 @@ import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 import lombok.extern.slf4j.Slf4j;
 import org.arabellan.common.Image;
+import org.arabellan.lwjgl.GLRenderer;
 import org.arabellan.lwjgl.Shader;
 import org.arabellan.lwjgl.ShaderProgram;
 import org.arabellan.lwjgl.Transform;
@@ -94,6 +95,9 @@ public class InGameScene implements Scene {
     private EventBus eventBus;
     private InputListener inputListener;
 
+    @Inject
+    private GLRenderer renderer;
+
     @Override
     public void initialize() {
         log.debug("Initializing");
@@ -123,6 +127,27 @@ public class InGameScene implements Scene {
     }
 
     private Renderable createBlock() {
+        int[] indices = {
+                0, 1, 2,    // 1 0  counter
+                2, 1, 3     // 3 2  clockwise
+        };
+
+        float[] vertices = {
+                +1f, +1f, +0f,    // top right
+                -1f, +1f, +0f,    // top left
+                +1f, -1f, +0f,    // bottom right
+                -1f, -1f, +0f     // bottom left
+        };
+
+        float[] texcoords = {
+                1f, 0f,     // top right
+                0f, 0f,     // top left
+                1f, 1f,     // bottom right
+                0f, 1f      // bottom left
+        };
+
+        Image image = new Image("assets/images/block.bmp");
+
         // build a vertex array
         int vertexArray = glGenVertexArrays();
         throwIfError();
@@ -139,109 +164,24 @@ public class InGameScene implements Scene {
         glUseProgram(shader.getId());
         throwIfError();
 
-        // define elements
-        IntBuffer elements = BufferUtils.createIntBuffer(6);
-        elements.put(new int[]{
-                0, 1, 2,    // 1 0  counter
-                2, 1, 3     // 3 2  clockwise
-        }).flip();
-
-        // push the elements to the gpu
-        int elementBuffer = glGenBuffers();
-        throwIfError();
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
-        throwIfError();
-
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, elements, GL_STATIC_DRAW);
-        throwIfError();
-
-        // define vertices
-        int vertexCount = 12;
-        FloatBuffer vertices = BufferUtils.createFloatBuffer(vertexCount);
-        vertices.put(new float[]{
-                +1f, +1f, +0f,    // top right
-                -1f, +1f, +0f,    // top left
-                +1f, -1f, +0f,    // bottom right
-                -1f, -1f, +0f     // bottom left
-        });
-        vertices.flip();
-
-        // push the vertices to the gpu
-        int vertexBuffer = glGenBuffers();
-        throwIfError();
-
-        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-        throwIfError();
-
-        glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
-        throwIfError();
-
-        // tell the shader how to read vertices
-        shader.setAttribute("position", 3);
-
-        // define texture coordinates
-        FloatBuffer texcoords = BufferUtils.createFloatBuffer(12);
-        texcoords.put(new float[]{
-                1f, 0f,     // top right
-                0f, 0f,     // top left
-                1f, 1f,     // bottom right
-                0f, 1f      // bottom left
-        });
-        texcoords.flip();
-
-        // push the texture coordinates to the gpu
-        int texcoordBuffer = glGenBuffers();
-        throwIfError();
-
-        glBindBuffer(GL_ARRAY_BUFFER, texcoordBuffer);
-        throwIfError();
-
-        glBufferData(GL_ARRAY_BUFFER, texcoords, GL_STATIC_DRAW);
-        throwIfError();
-
-        // tell the shader how to read texture coordinates
-        shader.setAttribute("texcoord", 2);
-
-        // define the default block color
+        // push data to the gpu
+        renderer.defineElements(indices);
+        renderer.defineArray(vertices);
+        renderer.defineArray(texcoords);
+        renderer.defineTexture(image);
         Vector4f color = new Vector4f(1f, 1f, 1f, 1f);
 
-        // tell the shader how to read color components
+        // tell the shader how to read the VBOs
+        shader.setAttribute("position", 3);
+        shader.setAttribute("texcoord", 2);
         shader.setUniform("color", color);
-
-        // define the texture
-        Image image = new Image("assets/images/block.bmp");
-
-        // push the texture to the gpu
-        int textureBuffer = glGenTextures();
-        throwIfError();
-
-        glBindTexture(GL_TEXTURE_2D, textureBuffer);
-        throwIfError();
-
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.getWidth(), image.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, image.getPixels());
-        throwIfError();
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        throwIfError();
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        throwIfError();
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        throwIfError();
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        throwIfError();
-
-        // tell the shader how to read the texture
         shader.setUniform("image", 0);
 
         // finally bundle up the pieces needed for the renderer
         return Renderable.builder()
                 .shader(shader)
                 .vertexArray(vertexArray)
-                .vertexCount(vertexCount)
+                .vertexCount(indices.length)
                 .build();
     }
 

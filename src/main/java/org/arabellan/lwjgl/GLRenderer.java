@@ -1,6 +1,7 @@
 package org.arabellan.lwjgl;
 
 import lombok.extern.slf4j.Slf4j;
+import org.arabellan.common.Image;
 import org.arabellan.tetris.Renderable;
 import org.arabellan.tetris.scenes.Scene;
 import org.joml.Matrix4f;
@@ -9,20 +10,40 @@ import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL;
 
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import static org.arabellan.lwjgl.GLException.throwIfError;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
+import static org.lwjgl.opengl.GL11.GL_LINEAR;
+import static org.lwjgl.opengl.GL11.GL_RGB;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_S;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_T;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
+import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
 import static org.lwjgl.opengl.GL11.GL_VIEWPORT;
+import static org.lwjgl.opengl.GL11.glBindTexture;
 import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11.glDrawElements;
+import static org.lwjgl.opengl.GL11.glGenTextures;
 import static org.lwjgl.opengl.GL11.glGetInteger;
 import static org.lwjgl.opengl.GL11.glGetIntegerv;
 import static org.lwjgl.opengl.GL11.glGetString;
+import static org.lwjgl.opengl.GL11.glTexImage2D;
+import static org.lwjgl.opengl.GL11.glTexParameteri;
+import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
+import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.GL_ELEMENT_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
+import static org.lwjgl.opengl.GL15.glBindBuffer;
+import static org.lwjgl.opengl.GL15.glBufferData;
+import static org.lwjgl.opengl.GL15.glGenBuffers;
 import static org.lwjgl.opengl.GL20.GL_SHADING_LANGUAGE_VERSION;
 import static org.lwjgl.opengl.GL20.glUseProgram;
 import static org.lwjgl.opengl.GL30.GL_MAJOR_VERSION;
@@ -79,6 +100,57 @@ public class GLRenderer {
 
     private void initializeGLState() {
         glClearColor(0, 0, 0, 0);
+        throwIfError();
+    }
+
+    public void defineArray(float[] array) {
+        FloatBuffer buffer = BufferUtils.createFloatBuffer(array.length);
+        buffer.put(array).flip();
+
+        int vbo = glGenBuffers();
+        throwIfError();
+
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        throwIfError();
+
+        glBufferData(GL_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
+        throwIfError();
+    }
+
+    public void defineElements(int[] elements) {
+        IntBuffer buffer = BufferUtils.createIntBuffer(elements.length);
+        buffer.put(elements).flip();
+
+        int vbo = glGenBuffers();
+        throwIfError();
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo);
+        throwIfError();
+
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
+        throwIfError();
+    }
+
+    public void defineTexture(Image image) {
+        int texture = glGenTextures();
+        throwIfError();
+
+        glBindTexture(GL_TEXTURE_2D, texture);
+        throwIfError();
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.getWidth(), image.getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, image.getPixels());
+        throwIfError();
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        throwIfError();
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        throwIfError();
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        throwIfError();
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         throwIfError();
     }
 
