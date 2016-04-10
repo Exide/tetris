@@ -1,5 +1,5 @@
 # tetris
-A clone of the classic [Tetris][1] by Alexey Pajitnov and Vladimir Pokhilko.
+An implementation of Tetris based on what I find enjoyable.
 
 ## Controls:
 - Movement: left, right
