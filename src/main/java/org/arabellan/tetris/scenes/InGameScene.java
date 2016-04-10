@@ -23,10 +23,7 @@ import org.arabellan.tetris.events.QuitEvent;
 import org.arabellan.tetris.events.RotateEvent;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
-import org.lwjgl.BufferUtils;
 
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -35,25 +32,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.arabellan.lwjgl.GLException.throwIfError;
-import static org.lwjgl.opengl.GL11.GL_LINEAR;
-import static org.lwjgl.opengl.GL11.GL_RGB;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_MAG_FILTER;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_MIN_FILTER;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_S;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_T;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
-import static org.lwjgl.opengl.GL11.glBindTexture;
-import static org.lwjgl.opengl.GL11.glGenTextures;
-import static org.lwjgl.opengl.GL11.glTexImage2D;
-import static org.lwjgl.opengl.GL11.glTexParameteri;
-import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
-import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.GL_ELEMENT_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
-import static org.lwjgl.opengl.GL15.glBindBuffer;
-import static org.lwjgl.opengl.GL15.glBufferData;
-import static org.lwjgl.opengl.GL15.glGenBuffers;
 import static org.lwjgl.opengl.GL20.GL_FRAGMENT_SHADER;
 import static org.lwjgl.opengl.GL20.GL_VERTEX_SHADER;
 import static org.lwjgl.opengl.GL20.glUseProgram;
@@ -148,36 +126,32 @@ public class InGameScene implements Scene {
 
         Image image = new Image("assets/images/block.bmp");
 
-        // build a vertex array
         int vertexArray = glGenVertexArrays();
         throwIfError();
 
         glBindVertexArray(vertexArray);
         throwIfError();
 
-        // build the shader
         Shader vertex = new Shader("assets/shaders/vertex.glsl", GL_VERTEX_SHADER);
         Shader fragment = new Shader("assets/shaders/fragment.glsl", GL_FRAGMENT_SHADER);
         ShaderProgram shader = new ShaderProgram(Arrays.asList(vertex, fragment));
 
-        // enable the shader for this vertex array
         glUseProgram(shader.getId());
         throwIfError();
 
-        // push data to the gpu
         renderer.defineElements(indices);
-        renderer.defineArray(vertices);
-        renderer.defineArray(texcoords);
-        renderer.defineTexture(image);
-        Vector4f color = new Vector4f(1f, 1f, 1f, 1f);
 
-        // tell the shader how to read the VBOs
+        renderer.defineArray(vertices);
         shader.setAttribute("position", 3);
+
+        renderer.defineArray(texcoords);
         shader.setAttribute("texcoord", 2);
-        shader.setUniform("color", color);
+
+        renderer.defineTexture(image);
         shader.setUniform("image", 0);
 
-        // finally bundle up the pieces needed for the renderer
+        shader.setUniform("color", new Vector4f(1f, 1f, 1f, 1f));
+
         return Renderable.builder()
                 .shader(shader)
                 .vertexArray(vertexArray)
