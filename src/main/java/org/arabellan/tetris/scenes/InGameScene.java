@@ -268,21 +268,21 @@ public class InGameScene implements Scene {
     private Vector4f convertCellValueToColor(int value) {
         switch (value) {
             case 1:
-                return new Vector4f(0.4f, 0.4f, 0.4f, 1f);  // dark grey
+                return new Vector4f(0.5f, 0.5f, 0.5f, 1f);  // grey
             case 2:
-                return new Vector4f(0.5f, 0.0f, 0.0f, 1f);  // dark red
+                return new Vector4f(1.0f, 0.0f, 0.0f, 1f);  // red
             case 3:
-                return new Vector4f(0.8f, 0.8f, 0.8f, 1f);  // light grey
+                return new Vector4f(1.0f, 1.0f, 1.0f, 1f);  // white
             case 4:
-                return new Vector4f(0.5f, 0.0f, 0.5f, 1f);  // dark magenta
+                return new Vector4f(0.5f, 0.0f, 1.0f, 1f);  // purple
             case 5:
-                return new Vector4f(0.0f, 0.0f, 0.5f, 1f);  // dark blue
+                return new Vector4f(0.0f, 0.0f, 1.0f, 1f);  // blue
             case 6:
-                return new Vector4f(0.0f, 0.5f, 0.0f, 1f);  // dark green
+                return new Vector4f(0.0f, 1.0f, 0.0f, 1f);  // green
             case 7:
-                return new Vector4f(0.5f, 0.5f, 0.0f, 1f);  // dark brown
+                return new Vector4f(1.5f, 0.5f, 0.0f, 1f);  // orange
             case 8:
-                return new Vector4f(0.0f, 0.5f, 0.5f, 1f);  // dark cyan
+                return new Vector4f(1.0f, 1.0f, 0.0f, 1f);  // yellow
             default:
                 throw new IllegalArgumentException("Unknown cell value: " + value);
         }
