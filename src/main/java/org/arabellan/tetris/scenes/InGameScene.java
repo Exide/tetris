@@ -21,6 +21,7 @@ import org.arabellan.tetris.events.MoveEvent;
 import org.arabellan.tetris.events.QuitEvent;
 import org.arabellan.tetris.events.RotateEvent;
 import org.joml.Vector2f;
+import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
@@ -202,6 +203,12 @@ public class InGameScene implements Scene {
         // tell the shader how to read texture coordinates
         shader.setAttribute("texcoord", 2);
 
+        // define the default block color
+        Vector4f color = new Vector4f(1f, 1f, 1f, 1f);
+
+        // tell the shader how to read color components
+        shader.setUniform("color", color);
+
         // define the texture
         Image image = new Image("assets/images/block.bmp");
 
@@ -244,17 +251,41 @@ public class InGameScene implements Scene {
                 .copy()
                 .add(activeTetrimino.getMatrix(), activeTetrimino.getPosition())
                 .stream()
-                .filter(cell -> cell.value == 1)
+                .filter(cell -> cell.getValue() != 0)
                 .map(cell -> Renderable.builder()
                         .shader(block.getShader())
+                        .color(convertCellValueToColor(cell.getValue()))
                         .vertexArray(block.getVertexArray())
                         .vertexCount(block.getVertexCount())
                         .transform(Transform.builder()
-                                .position(getWorldPositionForBlock(cell.index))
+                                .position(getWorldPositionForBlock(cell.getIndex()))
                                 .scale(new Vector2f(BLOCK_SIZE / 2, BLOCK_SIZE / 2))
                                 .build())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    private Vector4f convertCellValueToColor(int value) {
+        switch (value) {
+            case 1:
+                return new Vector4f(0.4f, 0.4f, 0.4f, 1f);  // dark grey
+            case 2:
+                return new Vector4f(0.5f, 0.0f, 0.0f, 1f);  // dark red
+            case 3:
+                return new Vector4f(0.8f, 0.8f, 0.8f, 1f);  // light grey
+            case 4:
+                return new Vector4f(0.5f, 0.0f, 0.5f, 1f);  // dark magenta
+            case 5:
+                return new Vector4f(0.0f, 0.0f, 0.5f, 1f);  // dark blue
+            case 6:
+                return new Vector4f(0.0f, 0.5f, 0.0f, 1f);  // dark green
+            case 7:
+                return new Vector4f(0.5f, 0.5f, 0.0f, 1f);  // dark brown
+            case 8:
+                return new Vector4f(0.0f, 0.5f, 0.5f, 1f);  // dark cyan
+            default:
+                throw new IllegalArgumentException("Unknown cell value: " + value);
+        }
     }
 
     private Vector2f getWorldPositionForBlock(int i) {

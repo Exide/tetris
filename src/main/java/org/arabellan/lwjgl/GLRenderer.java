@@ -101,6 +101,7 @@ public class GLRenderer {
         shader.setUniform("view", getViewMatrix(camera));
         shader.setUniform("projection", getProjectionMatrix(camera));
         shader.setUniform("model", getModelMatrix(position, scale));
+        shader.setUniform("color", renderable.getColor());
 
         glBindVertexArray(renderable.getVertexArray());
         throwIfError();

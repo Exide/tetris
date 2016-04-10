@@ -1,6 +1,7 @@
 package org.arabellan.tetris.domain;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import org.joml.Vector2f;
 
@@ -12,7 +13,7 @@ public class BlockMatrix {
     @Getter
     Integer[][] data;
 
-    public BlockMatrix(Integer[][] data) {
+    BlockMatrix(Integer[][] data) {
         this.data = data;
     }
 
@@ -23,7 +24,7 @@ public class BlockMatrix {
 
         for (int row = 0; row < newData.length; ++row) {
             for (int column = 0; column < newData[row].length; ++column) {
-                if (newData[row][column] == 1) {
+                if (newData[row][column] != 0) {
                     data[row + y][column + x] = newData[row][column];
                 }
             }
@@ -45,11 +46,11 @@ public class BlockMatrix {
         return sb.toString();
     }
 
-    public int height() {
+    int height() {
         return data.length;
     }
 
-    public int width() {
+    int width() {
         return data[0].length;
     }
 
@@ -73,9 +74,10 @@ public class BlockMatrix {
         return builder.build();
     }
 
+    @Data
     @AllArgsConstructor
     public class BlockData {
-        public int index;
-        public int value;
+        int index;
+        int value;
     }
 }

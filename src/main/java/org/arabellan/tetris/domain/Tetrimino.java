@@ -3,23 +3,15 @@ package org.arabellan.tetris.domain;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import org.arabellan.common.Color;
 import org.joml.Vector2f;
 
 @Builder
 @Getter
 public class Tetrimino {
 
-    public enum Type {I, J, L, O, S, T, Z}
-
-    public enum Orientation {UP, RIGHT, DOWN, LEFT}
-
-    Color color;
     Type type;
-
     @Setter
     Vector2f position;
-
     @Setter
     Orientation orientation;
 
@@ -52,45 +44,49 @@ public class Tetrimino {
         switch (type) {
             case I:
                 return new BlockMatrix(new Integer[][]{
-                        {1},
-                        {1},
-                        {1},
-                        {1}
+                        {2},
+                        {2},
+                        {2},
+                        {2}
                 });
             case J:
                 return new BlockMatrix(new Integer[][]{
-                        {0, 1},
-                        {0, 1},
-                        {1, 1}
+                        {0, 3},
+                        {0, 3},
+                        {3, 3}
                 });
             case L:
                 return new BlockMatrix(new Integer[][]{
-                        {1, 0},
-                        {1, 0},
-                        {1, 1}
+                        {4, 0},
+                        {4, 0},
+                        {4, 4}
                 });
             case O:
                 return new BlockMatrix(new Integer[][]{
-                        {1, 1},
-                        {1, 1}
+                        {5, 5},
+                        {5, 5}
                 });
             case S:
                 return new BlockMatrix(new Integer[][]{
-                        {0, 1, 1},
-                        {1, 1, 0}
+                        {0, 6, 6},
+                        {6, 6, 0}
                 });
             case T:
                 return new BlockMatrix(new Integer[][]{
-                        {0, 1, 0},
-                        {1, 1, 1}
+                        {0, 7, 0},
+                        {7, 7, 7}
                 });
             case Z:
                 return new BlockMatrix(new Integer[][]{
-                        {1, 1, 0},
-                        {0, 1, 1}
+                        {8, 8, 0},
+                        {0, 8, 8}
                 });
             default:
-                throw new RuntimeException("Unknown Tetrimino type!");
+                throw new IllegalArgumentException("Unknown tetrimino type");
         }
     }
+
+    enum Type {I, J, L, O, S, T, Z}
+
+    enum Orientation {UP, RIGHT, DOWN, LEFT}
 }

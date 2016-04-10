@@ -10,7 +10,7 @@ public class Well {
 
     private static final long SCORE_PER_LINE = 100;
 
-    BlockMatrix grid = new BlockMatrix(new Integer[][]{
+    private BlockMatrix grid = new BlockMatrix(new Integer[][]{
             {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
             {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
             {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},
@@ -53,7 +53,7 @@ public class Well {
         return new Vector2f(position.x, -position.y);
     }
 
-    public boolean isOverlapping(BlockMatrix matrix, Vector2f offset) {
+    private boolean isOverlapping(BlockMatrix matrix, Vector2f offset) {
         int x = (int) offset.x;
         int y = (int) offset.y;
 
@@ -82,7 +82,8 @@ public class Well {
     }
 
     private boolean isRowComplete(int row) {
-        return Arrays.asList(grid.getData()[row]).stream().distinct().count() == 1;
+        return !Arrays.asList(grid.getData()[row]).stream()
+                .anyMatch(value -> value == 0);
     }
 
     private long clearRow(Integer row) {

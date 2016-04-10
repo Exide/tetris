@@ -3,6 +3,7 @@ package org.arabellan.lwjgl;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.joml.Matrix4f;
+import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 
 import java.nio.FloatBuffer;
@@ -21,8 +22,10 @@ import static org.lwjgl.opengl.GL20.glGetProgrami;
 import static org.lwjgl.opengl.GL20.glGetUniformLocation;
 import static org.lwjgl.opengl.GL20.glLinkProgram;
 import static org.lwjgl.opengl.GL20.glUniform1i;
+import static org.lwjgl.opengl.GL20.glUniform4fv;
 import static org.lwjgl.opengl.GL20.glUniformMatrix4fv;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
+import static org.lwjgl.opengl.GL30.glBindFragDataLocation;
 
 @Slf4j
 public class ShaderProgram {
@@ -42,6 +45,11 @@ public class ShaderProgram {
             glAttachShader(id, shader.id);
             throwIfError();
         });
+
+        int fragmentOutputBufferIndex = 0;
+        String fragmentOutputName = "outputColor";
+        glBindFragDataLocation(id, fragmentOutputBufferIndex, fragmentOutputName);
+        throwIfError();
 
         glLinkProgram(id);
         throwIfError();
@@ -81,6 +89,17 @@ public class ShaderProgram {
         matrix.get(matrixBuffer);
 
         glUniformMatrix4fv(uniformLocation, false, matrixBuffer);
+        throwIfError();
+    }
+
+    public void setUniform(String name, Vector4f vector) {
+        int uniformLocation = glGetUniformLocation(id, name);
+        throwIfError();
+
+        FloatBuffer vectorBufer = BufferUtils.createFloatBuffer(4);
+        vector.get(vectorBufer);
+
+        glUniform4fv(uniformLocation, vectorBufer);
         throwIfError();
     }
 }

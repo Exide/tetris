@@ -2,8 +2,9 @@
 
 in vec2 uv;
 uniform sampler2D image;
-out vec4 color;
+uniform vec4 color;
+out vec4 outputColor;
 
 void main() {
-    color = texture(image, uv).rgba;
+    outputColor = texture(image, uv) * color;
 }
