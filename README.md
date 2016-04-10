@@ -1,6 +1,8 @@
 # tetris
 An implementation of Tetris based on what I find enjoyable.
 
+![Build Status](https://travis-ci.org/Exide/tetris.svg?branch=master)
+
 ## Pre-requisites:
 
 - Gradle 2.3 _(compile time only)_
