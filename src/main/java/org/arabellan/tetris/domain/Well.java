@@ -1,7 +1,6 @@
 package org.arabellan.tetris.domain;
 
 import lombok.extern.slf4j.Slf4j;
-import org.joml.Vector2f;
 
 import java.util.Arrays;
 
@@ -45,29 +44,23 @@ public class Well {
     }
 
     public boolean isPositionAllowed(Tetrimino tetrimino) {
-        Vector2f position = invertYAxis(tetrimino.getPosition());
-        return !isOverlapping(tetrimino.getMatrix(), position);
-    }
-
-    private Vector2f invertYAxis(Vector2f position) {
-        return new Vector2f(position.x, -position.y);
-    }
-
-    private boolean isOverlapping(BlockMatrix matrix, Vector2f offset) {
-        int x = (int) offset.x;
-        int y = (int) offset.y;
+        int x = (int) tetrimino.getPosition().x;
+        int y = (int) tetrimino.getPosition().y;
+        BlockMatrix matrix = tetrimino.getMatrix();
 
         for (int row = 0; row < matrix.height(); ++row) {
             for (int column = 0; column < matrix.width(); ++column) {
-                int a = grid.getData()[row + y][column + x];
-                int b = matrix.getData()[row][column];
-                if (a != 0 && b != 0) {
-                    return true;
-                }
+                int matrixCell = matrix.getData()[row][column];
+                if (matrixCell == 0) continue;
+
+                int gridCell = grid.getData()[row + y][column + x];
+                if (gridCell == 0) continue;
+
+                return false;
             }
         }
 
-        return false;
+        return true;
     }
 
     public int clearCompleteRows() {

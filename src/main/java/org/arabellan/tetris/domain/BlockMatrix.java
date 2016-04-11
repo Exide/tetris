@@ -19,7 +19,7 @@ public class BlockMatrix {
 
     public BlockMatrix add(BlockMatrix matrix, Vector2f offset) {
         int x = ((int) offset.x);
-        int y = ((int) -offset.y);
+        int y = ((int) offset.y);
         Integer[][] newData = matrix.getData();
 
         for (int row = 0; row < newData.length; ++row) {

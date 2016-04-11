@@ -9,6 +9,116 @@ import org.joml.Vector2f;
 @Getter
 public class Tetrimino {
 
+    private static final BlockMatrix O_ALL = new BlockMatrix(new Integer[][]{
+            {0, 0, 5, 5, 0},
+            {0, 0, 5, 5, 0}
+    });
+
+    private static final BlockMatrix I_VERTICAL = new BlockMatrix(new Integer[][]{
+            {0, 0, 2, 0, 0},
+            {0, 0, 2, 0, 0},
+            {0, 0, 2, 0, 0},
+            {0, 0, 2, 0, 0}
+    });
+
+    private static final BlockMatrix I_HORIZONTAL = new BlockMatrix(new Integer[][]{
+            {0, 2, 2, 2, 2}
+    });
+
+    private static final BlockMatrix S_HORIZONTAL = new BlockMatrix(new Integer[][]{
+            {0, 0, 6, 6, 0},
+            {0, 6, 6, 0, 0},
+            {0, 0, 0, 0, 0}
+    });
+
+    private static final BlockMatrix S_VERTICAL = new BlockMatrix(new Integer[][]{
+            {0, 6, 0, 0, 0},
+            {0, 6, 6, 0, 0},
+            {0, 0, 6, 0, 0}
+    });
+
+    private static final BlockMatrix Z_HORIZONTAL = new BlockMatrix(new Integer[][]{
+            {0, 8, 8, 0, 0},
+            {0, 0, 8, 8, 0},
+            {0, 0, 0, 0, 0}
+    });
+
+    private static final BlockMatrix Z_VERTICAL = new BlockMatrix(new Integer[][]{
+            {0, 0, 0, 8, 0},
+            {0, 0, 8, 8, 0},
+            {0, 0, 8, 0, 0}
+    });
+
+    private static final BlockMatrix J_UP = new BlockMatrix(new Integer[][]{
+            {0, 0, 3, 0, 0},
+            {0, 0, 3, 0, 0},
+            {0, 3, 3, 0, 0},
+    });
+
+    private static final BlockMatrix J_DOWN = new BlockMatrix(new Integer[][]{
+            {0, 0, 3, 3, 0},
+            {0, 0, 3, 0, 0},
+            {0, 0, 3, 0, 0},
+    });
+
+    private static final BlockMatrix J_LEFT = new BlockMatrix(new Integer[][]{
+            {0, 0, 0, 0, 0},
+            {0, 3, 3, 3, 0},
+            {0, 0, 0, 3, 0},
+    });
+
+    private static final BlockMatrix J_RIGHT = new BlockMatrix(new Integer[][]{
+            {0, 3, 0, 0, 0},
+            {0, 3, 3, 3, 0},
+    });
+
+    private static final BlockMatrix L_UP = new BlockMatrix(new Integer[][]{
+            {0, 0, 4, 0, 0},
+            {0, 0, 4, 0, 0},
+            {0, 0, 4, 4, 0},
+    });
+
+    private static final BlockMatrix L_DOWN = new BlockMatrix(new Integer[][]{
+            {0, 4, 4, 0, 0},
+            {0, 0, 4, 0, 0},
+            {0, 0, 4, 0, 0},
+    });
+
+    private static final BlockMatrix L_LEFT = new BlockMatrix(new Integer[][]{
+            {0, 0, 0, 0, 0},
+            {0, 4, 4, 4, 0},
+            {0, 4, 0, 0, 0},
+    });
+
+    private static final BlockMatrix L_RIGHT = new BlockMatrix(new Integer[][]{
+            {0, 0, 0, 4, 0},
+            {0, 4, 4, 4, 0},
+    });
+
+    private static final BlockMatrix T_UP = new BlockMatrix(new Integer[][]{
+            {0, 0, 0, 0, 0},
+            {0, 0, 7, 0, 0},
+            {0, 7, 7, 7, 0}
+    });
+
+    private static final BlockMatrix T_DOWN = new BlockMatrix(new Integer[][]{
+            {0, 7, 7, 7, 0},
+            {0, 0, 7, 0, 0},
+            {0, 0, 0, 0, 0}
+    });
+
+    private static final BlockMatrix T_LEFT = new BlockMatrix(new Integer[][]{
+            {0, 0, 0, 7, 0},
+            {0, 0, 7, 7, 0},
+            {0, 0, 0, 7, 0}
+    });
+
+    private static final BlockMatrix T_RIGHT = new BlockMatrix(new Integer[][]{
+            {0, 7, 0, 0, 0},
+            {0, 7, 7, 0, 0},
+            {0, 7, 0, 0, 0}
+    });
+
     Type type;
     @Setter
     Vector2f position;
@@ -16,73 +126,101 @@ public class Tetrimino {
     Orientation orientation;
 
     public BlockMatrix getMatrix() {
-        BlockMatrix shape = getShape();
-        return correctForOrientation(shape);
-    }
-
-    private BlockMatrix correctForOrientation(BlockMatrix shape) {
-        for (int i = 0; i < orientation.ordinal(); ++i) {
-            shape = rotateShape(shape);
+        switch (orientation) {
+            case UP:
+                return getShapeFacingUp();
+            case DOWN:
+                return getShapeFacingDown();
+            case LEFT:
+                return getShapeFacingLeft();
+            case RIGHT:
+                return getShapeFacingRight();
+            default:
+                throw new IllegalArgumentException("Invalid orientation: " + orientation.name());
         }
-        return shape;
     }
 
-    private BlockMatrix rotateShape(BlockMatrix shape) {
-        Integer[][] data = shape.getData();
-        final int M = data.length;
-        final int N = data[0].length;
-        Integer[][] output = new Integer[N][M];
-        for (int r = 0; r < M; r++) {
-            for (int c = 0; c < N; c++) {
-                output[c][M - 1 - r] = data[r][c];
-            }
-        }
-        return new BlockMatrix(output);
-    }
-
-    private BlockMatrix getShape() {
+    private BlockMatrix getShapeFacingUp() {
         switch (type) {
             case I:
-                return new BlockMatrix(new Integer[][]{
-                        {2},
-                        {2},
-                        {2},
-                        {2}
-                });
+                return I_VERTICAL;
             case J:
-                return new BlockMatrix(new Integer[][]{
-                        {0, 3},
-                        {0, 3},
-                        {3, 3}
-                });
+                return J_UP;
             case L:
-                return new BlockMatrix(new Integer[][]{
-                        {4, 0},
-                        {4, 0},
-                        {4, 4}
-                });
+                return L_UP;
             case O:
-                return new BlockMatrix(new Integer[][]{
-                        {5, 5},
-                        {5, 5}
-                });
+                return O_ALL;
             case S:
-                return new BlockMatrix(new Integer[][]{
-                        {0, 6, 6},
-                        {6, 6, 0}
-                });
+                return S_HORIZONTAL;
             case T:
-                return new BlockMatrix(new Integer[][]{
-                        {0, 7, 0},
-                        {7, 7, 7}
-                });
+                return T_UP;
             case Z:
-                return new BlockMatrix(new Integer[][]{
-                        {8, 8, 0},
-                        {0, 8, 8}
-                });
+                return Z_HORIZONTAL;
             default:
-                throw new IllegalArgumentException("Unknown tetrimino type");
+                throw new IllegalArgumentException("Invalid type: " + type.name());
+        }
+    }
+
+    private BlockMatrix getShapeFacingDown() {
+        switch (type) {
+            case I:
+                return I_VERTICAL;
+            case J:
+                return J_DOWN;
+            case L:
+                return L_DOWN;
+            case O:
+                return O_ALL;
+            case S:
+                return S_HORIZONTAL;
+            case T:
+                return T_DOWN;
+            case Z:
+                return Z_HORIZONTAL;
+            default:
+                throw new IllegalArgumentException("Invalid type: " + type.name());
+        }
+    }
+
+    private BlockMatrix getShapeFacingLeft() {
+        switch (type) {
+            case I:
+                return I_HORIZONTAL;
+            case J:
+                return J_LEFT;
+            case L:
+                return L_LEFT;
+            case O:
+                return O_ALL;
+            case S:
+                return S_VERTICAL;
+            case T:
+                return T_LEFT;
+            case Z:
+                return Z_VERTICAL;
+            default:
+                throw new IllegalArgumentException("Invalid type: " + type.name());
+        }
+    }
+
+    private BlockMatrix getShapeFacingRight() {
+        switch (type) {
+            case I:
+                return I_HORIZONTAL;
+            case J:
+                return J_RIGHT;
+            case L:
+                return L_RIGHT;
+            case O:
+                return O_ALL;
+            case S:
+                return S_VERTICAL;
+            case T:
+                return T_RIGHT;
+            case Z:
+                return Z_VERTICAL;
+            default:
+                throw new IllegalArgumentException("Invalid type: " + type.name());
         }
     }
 

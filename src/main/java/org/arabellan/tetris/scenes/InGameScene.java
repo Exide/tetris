@@ -198,7 +198,7 @@ public class InGameScene implements Scene {
                 {1, 0, 0, 0, 0, 0, 1},
                 {1, 0, 0, 0, 0, 0, 1},
                 {1, 1, 1, 1, 1, 1, 1}})
-                .add(nextTetrimino.getMatrix(), new Vector2f(3, -2))
+                .add(nextTetrimino.getMatrix(), new Vector2f(1, 2))
                 .stream()
                 .filter(cell -> cell.getValue() != 0)
                 .map(cell -> Renderable.builder()
@@ -286,7 +286,7 @@ public class InGameScene implements Scene {
 
     private void updateActiveTetrimino() {
         try {
-            moveActiveTetrimino(new Vector2f(0, -1));
+            moveActiveTetrimino(new Vector2f(0, 1));
         } catch (InvalidMoveException e) {
             finalizeActiveTetrimino();
         }
@@ -337,7 +337,7 @@ public class InGameScene implements Scene {
 
     private void dropActiveTetrimino() {
         log.debug("Dropping tetrimino");
-        Vector2f nextPosition = new Vector2f(0, -1);
+        Vector2f nextPosition = new Vector2f(0, 1);
         Tetrimino movedStub = factory.getMovedStub(activeTetrimino, nextPosition);
         while (well.isPositionAllowed(movedStub)) {
             activeTetrimino.setPosition(movedStub.getPosition());
@@ -362,7 +362,7 @@ public class InGameScene implements Scene {
                 } else if (event.getDirection() == MoveEvent.Direction.Right) {
                     moveActiveTetrimino(new Vector2f(1, 0));
                 } else if (event.getDirection() == MoveEvent.Direction.Down) {
-                    moveActiveTetrimino(new Vector2f(0, -1));
+                    moveActiveTetrimino(new Vector2f(0, 1));
                 } else {
                     log.warn("Unknown move event: " + event.getDirection().name());
                 }

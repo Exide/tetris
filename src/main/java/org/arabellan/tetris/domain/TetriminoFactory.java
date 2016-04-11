@@ -13,7 +13,7 @@ public class TetriminoFactory {
 
     public Tetrimino getRandomTetrimino() {
         Type type = getRandomType();
-        Vector2f position = new Vector2f(5, 0);
+        Vector2f position = new Vector2f(3, 0);
 
         return Tetrimino.builder()
                 .type(type)
