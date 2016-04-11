@@ -154,7 +154,7 @@ public class InGameScene implements Scene {
         renderer.defineTexture(image);
         shader.setUniform("image", 0);
 
-        shader.setUniform("color", new Vector4f(1f, 1f, 1f, 1f));
+        shader.setUniform("color", new Vector4f(1, 1, 1, 1));
 
         return Renderable.builder()
                 .shader(shader)
@@ -171,9 +171,13 @@ public class InGameScene implements Scene {
     }
 
     private Stream<Renderable> getWellRenderables() {
-        return well.getMatrix()
-                .copy()
-                .add(activeTetrimino.getMatrix(), activeTetrimino.getPosition())
+        BlockMatrix matrix = well.getMatrix().copy();
+        Vector2i dimensions = new Vector2i(matrix.width(), matrix.height());
+        Vector2f position = new Vector2f(-100, 0);
+        Vector2f offset = activeTetrimino.getPosition();
+
+        return matrix
+                .add(activeTetrimino.getMatrix(), offset)
                 .stream()
                 .filter(cell -> cell.getValue() != 0)
                 .map(cell -> Renderable.builder()
@@ -182,14 +186,14 @@ public class InGameScene implements Scene {
                         .vertexArray(block.getVertexArray())
                         .vertexCount(block.getVertexCount())
                         .transform(Transform.builder()
-                                .position(getWorldPositionForBlock(cell.getIndex(), new Vector2f(-100f, 0), new Vector2i(12, 22)))
+                                .position(getWorldPositionForBlock(cell.getIndex(), position, dimensions))
                                 .scale(new Vector2f(BLOCK_SIZE / 2, BLOCK_SIZE / 2))
                                 .build())
                         .build());
     }
 
     private Stream<Renderable> getNextTetriminoRenderables() {
-        return new BlockMatrix(new Integer[][]{
+        BlockMatrix matrix = new BlockMatrix(new Integer[][]{
                 {1, 1, 1, 1, 1, 1, 1},
                 {1, 0, 0, 0, 0, 0, 1},
                 {1, 0, 0, 0, 0, 0, 1},
@@ -197,8 +201,13 @@ public class InGameScene implements Scene {
                 {1, 0, 0, 0, 0, 0, 1},
                 {1, 0, 0, 0, 0, 0, 1},
                 {1, 0, 0, 0, 0, 0, 1},
-                {1, 1, 1, 1, 1, 1, 1}})
-                .add(nextTetrimino.getMatrix(), new Vector2f(1, 2))
+                {1, 1, 1, 1, 1, 1, 1}});
+        Vector2i dimensions = new Vector2i(matrix.width(), matrix.height());
+        Vector2f position = new Vector2f(150, 140);
+        Vector2f offset = new Vector2f(1, 2);
+
+        return matrix
+                .add(nextTetrimino.getMatrix(), offset)
                 .stream()
                 .filter(cell -> cell.getValue() != 0)
                 .map(cell -> Renderable.builder()
@@ -207,7 +216,7 @@ public class InGameScene implements Scene {
                         .vertexArray(block.getVertexArray())
                         .vertexCount(block.getVertexCount())
                         .transform(Transform.builder()
-                                .position(getWorldPositionForBlock(cell.getIndex(), new Vector2f(100f, 140f), new Vector2i(7, 8)))
+                                .position(getWorldPositionForBlock(cell.getIndex(), position, dimensions))
                                 .scale(new Vector2f(BLOCK_SIZE / 2, BLOCK_SIZE / 2))
                                 .build())
                         .build());
@@ -268,6 +277,7 @@ public class InGameScene implements Scene {
 
     private void increaseScore(int linesCleared) {
         currentPoints += linesCleared * POINTS_PER_LINE * linesCleared;
+        log.debug(String.format("Score increased to %s", currentPoints));
     }
 
     private void increaseLevelIfNeeded() {

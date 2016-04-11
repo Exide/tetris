@@ -12,12 +12,9 @@ public class TetriminoFactory {
     private Random random = new Random();
 
     public Tetrimino getRandomTetrimino() {
-        Type type = getRandomType();
-        Vector2f position = new Vector2f(3, 0);
-
         return Tetrimino.builder()
-                .type(type)
-                .position(position)
+                .type(getRandomType())
+                .position(new Vector2f(4, 0))
                 .orientation(Orientation.UP)
                 .build();
     }

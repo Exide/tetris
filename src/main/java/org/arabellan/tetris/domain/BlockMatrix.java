@@ -46,11 +46,11 @@ public class BlockMatrix {
         return sb.toString();
     }
 
-    int height() {
+    public int height() {
         return data.length;
     }
 
-    int width() {
+    public int width() {
         return data[0].length;
     }
 
