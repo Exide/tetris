@@ -1,5 +1,5 @@
 # tetris
-An implementation of Tetris based on what I find enjoyable.
+Needed to learn some Java libraries so I made a game with them.
 
 ![Build Status](https://travis-ci.org/Exide/tetris.svg?branch=master)
 
